@@ -194,7 +194,7 @@ export default {
 
 </script>
 
-<style lang="scss" scoped>
+<style lang="css" scoped>
   .outer {
     min-width: 1100px;
     max-width: 1200px;
@@ -284,8 +284,8 @@ export default {
   }
 
   .ruleForm {
-    padding: 30px 30px 0;
-    /deep/ .el-form-item__label {
+    padding: 30px 30px 0px;
+     .el-form-item__label {
       color: #fff;
     }
   }

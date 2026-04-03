@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="wcl_nlp">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/wcl_nlp/xadmin-django2.zip!/" />
+      <root url="jar://$PROJECT_DIR$/wcl_nlp/snownlp-0.12.3.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

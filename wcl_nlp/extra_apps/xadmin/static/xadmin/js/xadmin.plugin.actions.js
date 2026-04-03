@@ -43,7 +43,7 @@
             $(options.acrossInput).val(0);
         }
 
-        // Show counter by default
+        /* Show counter by default*/
         $(options.counterContainer).show();
         $(options.allToggle).show().click(function() {
             $(actionCheckboxes).trigger('checker', $(this).is(":checked"));
@@ -89,7 +89,7 @@
             lastChecked = target;
         });
 
-        // Check state of checkboxes and reinit state if needed
+        /* Check state of checkboxes and reinit state if needed*/
         $(this).filter(":checked").trigger('checker', true);
         updateCounter();
         if ($(options.acrossInput).val() == 1) {

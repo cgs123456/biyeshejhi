@@ -67,9 +67,9 @@
             <span v-for="(o, index) in groupInfos" :key="index">
               @<strong>{{o.user[0].fields.nick_name}}</strong>
             </span>
-            的微博的评论中，词汇<strong id="analysis_time">{{this.chartData.rows[0].word}}</strong>频率最高，达到<strong id="bloger">{{this.chartData.rows[0].count}}</strong> 次。
-            其次是<strong id="analysis_time">{{this.chartData.rows[1].word}}、{{this.chartData.rows[2].word}}、{{this.chartData.rows[3].word}}</strong>分别达到
-            <strong id="bloger">{{this.chartData.rows[1].count}}、{{this.chartData.rows[2].count}}、{{this.chartData.rows[3].count}}</strong> 次。
+            的微博的评论中，词汇<strong id="analysis_time">{{chartData.rows[0] && chartData.rows[0].word ? chartData.rows[0].word : '无数据'}}</strong>频率最高，达到<strong id="bloger">{{chartData.rows[0] && chartData.rows[0].count ? chartData.rows[0].count : 0}}</strong> 次。
+            其次为<strong id="analysis_time">{{chartData.rows[1] && chartData.rows[1].word ? chartData.rows[1].word : ''}}、{{chartData.rows[2] && chartData.rows[2].word ? chartData.rows[2].word : ''}}、{{chartData.rows[3] && chartData.rows[3].word ? chartData.rows[3].word : ''}}</strong>分别达到
+            <strong id="bloger">{{chartData.rows[1] && chartData.rows[1].count ? chartData.rows[1].count : 0}}、{{chartData.rows[2] && chartData.rows[2].count ? chartData.rows[2].count : 0}}、{{chartData.rows[3] && chartData.rows[3].count ? chartData.rows[3].count : 0}}</strong> 次。
           </div>
         </div>
         <p>敏感率（当前敏感率只检测暴恐、反动、民生、色情等词汇）</p>
@@ -113,23 +113,22 @@
 </template>
 
 <script>
-import axios from 'axios'
-import Qs from 'qs'
+var axios = require('axios');
+var Qs = require('qs');
 
-import {
-  mapState
-} from 'vuex'
-export default {
+var mapState = require('vuex').mapState;
+
+module.exports = {
   name: 'GroupMain',
-  data () {
+  data: function() {
     this.chartSettings1 = {
       sizeMin: 30,
       sizeMax: 60
-    }
+    };
     this.chartSettings2 = {
       metrics: ['次数'],
       dimension: ['情感值']
-    }
+    };
     return {
       tableData: [],
       chartData: null,
@@ -148,37 +147,48 @@ export default {
         bigdate: 0,
         bigcount: 0
       }
-    }
+    };
   },
-  computed: {
-    ...mapState({
-      groupInfo: state => state.group
-    }),
-    // 循环输出
-    groupInfos: function () {
-      // 一个数组里有所有用户的所有信息
-      let res = this.groupInfo
-      for (let i = 0; i < res.length; i++) {
-        res[i].user = eval('(' + res[i].user + ')')
+  computed: (function() {
+    var computedObj = {};
+    var stateMap = mapState({
+      groupInfo: function(state) {
+        return state.group;
       }
-      return res
+    });
+    for (var key in stateMap) {
+      if (stateMap.hasOwnProperty(key)) {
+        computedObj[key] = stateMap[key];
+      }
     }
-  },
+    
+    computedObj.groupInfos = function() {
+      var res = this.groupInfo;
+      for (var i = 0; i < res.length; i++) {
+        res[i].user = eval('(' + res[i].user + ')');
+      }
+      return res;
+    };
+    
+    return computedObj;
+  })(),
   methods: {
-    infos: function (infos) {
-      return '微博数：' + infos.tweets_num + '  粉丝数：' + infos.fans_num + '  关注数：' + infos.follows_num
+    infos: function(infos) {
+      return '微博数：' + infos.tweets_num + '  粉丝数：' + infos.fans_num + '  关注数：' + infos.follows_num;
     },
-    tableRowClassName ({row, rowIndex}) {
+    tableRowClassName: function(obj) {
+      var row = obj.row;
+      var rowIndex = obj.rowIndex;
       if (rowIndex === 1) {
-        return 'warning-row'
+        return 'warning-row';
       } else if (rowIndex === 3) {
-        return 'success-row'
+        return 'success-row';
       }
-      return ''
+      return '';
     },
-    setTableData: function () {
-      let res = []
-      for (let i = 0; i < this.groupInfos.length; i++) {
+    setTableData: function() {
+      var res = [];
+      for (var i = 0; i < this.groupInfos.length; i++) {
         res.push({
           'index': this.groupInfos[i].user[0].fields.nick_name,
           'place': this.groupInfos[i].user[0].fields.city ? this.groupInfos[i].user[0].fields.city : '无',
@@ -187,126 +197,118 @@ export default {
           'emotions': this.groupInfos[i].user[0].fields.sex_orientation ? this.groupInfos[i].user[0].fields.sex_orientation : '无',
           'vip': this.groupInfos[i].user[0].fields.vip_level ? this.groupInfos[i].user[0].fields.vip_level : '无',
           'auth': this.groupInfos[i].user[0].fields.authentication ? this.groupInfos[i].user[0].fields.authentication : '无'
-        })
+        });
       }
-      this.tableData = res
+      this.tableData = res;
     },
-    // 跳转爬取个人分析界面
-    goInWb: function (id) {
-      this.openFullScreen2()
+    goInWb: function(id) {
+      this.openFullScreen2();
       axios.post('http://localhost:8000/spiderapi/',
         Qs.stringify({
           weiboId: id
         })
-      ).then((response) => {
-        this.$store.state.user = response.data.data
-        this.$store.state.usertweets = response.data.tweets
-        this.$store.state.total = response.data.total
-        this.loading.close()
+      ).then(function(response) {
+        this.$store.state.user = response.data.data;
+        this.$store.state.usertweets = response.data.tweets;
+        this.$store.state.total = response.data.total;
+        this.loading.close();
         this.$router.push({
           path: '/user'
-        })
-      })
+        });
+      }.bind(this));
     },
-    openFullScreen2 () {
+    openFullScreen2: function() {
       this.loading = this.$loading({
         lock: true,
         text: '后台疯狂进行爬虫计算中',
         spinner: 'el-icon-loading',
         background: 'rgba(0, 0, 0, 0.7)'
-      })
+      });
     }
   },
-  mounted () {
-    this.setTableData()
+  mounted: function() {
+    this.setTableData();
     this.$notify.info({
       title: '消息',
       message: '请稍后，正在计算最终情感结果',
       position: 'bottom-right'
-    })
+    });
     axios.get('http://localhost:8000/getgroup?&weiboIds=' + this.$store.state.tempids)
-      .then((response) => {
-        let res = []
-        console.log(response.data)
-        for (let i = 0; i < response.data.cipin.length; i++) {
+      .then(function(response) {
+        var res = [];
+        console.log(response.data);
+        for (var i = 0; i < response.data.cipin.length; i++) {
           res.push({
-            // 记录词频
             'word': response.data.cipin[i].word,
             'count': response.data.cipin[i].count
-          })
+          });
         }
-        // 词云数据
-        let chartData = {
+        var chartData = {
           columns: ['word', 'count'],
           rows: res
-        }
-        this.chartData = chartData
-        // 敏感率分析
-        let chartData1 = {
+        };
+        this.chartData = chartData;
+        
+        var minganValue = parseFloat(response.data.mingan);
+        var chartData1 = {
           columns: ['敏感程度', '敏感', '非敏感'],
           rows: [
-            // 浮点数保留两位小数
-            { '敏感程度': '敏感程度', '敏感': parseFloat(response.data.mingan).toFixed(2), '非敏感': 1 - parseFloat(response.data.mingan).toFixed(2) }
+            { '敏感程度': '敏感程度', '敏感': minganValue, '非敏感': 1 - minganValue }
           ]
-        }
-        this.mingandata = parseFloat(response.data.mingan).toFixed(2)
-        this.chartData1 = chartData1
-        // 情感柱状图
-        let rows = []
-        // 柱状图总个数
-        this.emtionanaly.len = response.data.analy.length
-        // 最小数值
-        this.emtionanaly.smalldate = response.data.analy[0][0]
-        // 最小个数
-        this.emtionanaly.smallcount = response.data.analy[0][1]
-        // 最大数值
-        this.emtionanaly.bigdate = response.data.analy[response.data.analy.length - 1][0]
-        // 最大个数
-        this.emtionanaly.bigcount = response.data.analy[response.data.analy.length - 1][1]
-        for (let i = 0; i < response.data.analy.length; i++) {
-          //  分析的情感数值大于当前的分析 后来者必须比现在的大 顺序排列
+        };
+        this.mingandata = minganValue;
+        this.chartData1 = chartData1;
+        
+        var rows = [];
+        this.emtionanaly.len = response.data.analy.length;
+        this.emtionanaly.smalldate = response.data.analy[0][0];
+        this.emtionanaly.smallcount = response.data.analy[0][1];
+        this.emtionanaly.bigdate = response.data.analy[response.data.analy.length - 1][0];
+        this.emtionanaly.bigcount = response.data.analy[response.data.analy.length - 1][1];
+        
+        for (var i = 0; i < response.data.analy.length; i++) {
           if (response.data.analy[i][1] > this.emtionanaly.maxcount) {
-            // 当前最大数值，当前最大个数
-            this.emtionanaly.maxcount = response.data.analy[i][1]
-            this.emtionanaly.maxdate = response.data.analy[i][0]
+            this.emtionanaly.maxcount = response.data.analy[i][1];
+            this.emtionanaly.maxdate = response.data.analy[i][0];
           }
-          // 当前柱状图数值
+          
           rows.push({
             '情感值': response.data.analy[i][0],
             '次数': response.data.analy[i][1]
-          })
+          });
+          
           if (response.data.analy[i][0] < 0.5) {
-            // 计算消极数量
-            this.emtionanaly.count0++
-            // 计算积极数量
+            this.emtionanaly.count0++;
           } else {
-            this.emtionanaly.count1++
+            this.emtionanaly.count1++;
           }
         }
-        let chartData2 = {
+        
+        var chartData2 = {
           columns: ['情感值'],
           rows: rows
-        }
-        this.chartData2 = chartData2
-        let pl = '消极偏多😭'
+        };
+        this.chartData2 = chartData2;
+        
+        var pl = '消极偏多😭';
         if (this.emtionanaly.count0 > this.emtionanaly.count1) {
-          pl = '消极偏多😭'
+          pl = '消极偏多😭';
         } else {
-          pl = '积极偏多😁'
+          pl = '积极偏多😁';
         }
+        
         this.$notify({
           title: '成功',
           message: '微博内容评论倾向：' + pl,
           type: 'success',
           position: 'bottom-right'
-        })
-      })
+        });
+      }.bind(this));
   }
-}
-
+};
 </script>
 
-<style lang="scss" scoped>
+<style lang="css" scoped>
   .outer {
     margin: 0 auto;
     max-width: 900px;
@@ -340,33 +342,35 @@ export default {
   .item .m_l {
     width: 50px;
     float: left;
-    img {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      display: block;
-      cursor: pointer;
-      padding: 10px 0;
-    }
+  }
+  
+  .item .m_l img {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: block;
+    cursor: pointer;
+    padding: 10px 0;
   }
 
   .m_r {
     margin-left: 80px;
     font-size: 14px;
-    p {
-      color: #0000EE;
-    }
+  }
+  
+  .m_r p {
+    color: #0000EE;
   }
 
   .user, .userInfo {
     border-bottom: 1px solid #E4E7ED;
   }
 
-  /deep/ .el-table .warning-row {
+   .el-table .warning-row {
     background: oldlace;
   }
 
-  /deep/ .el-table .success-row {
+   .el-table .success-row {
     background: #f0f9eb;
   }
 

@@ -48,13 +48,13 @@ class Weibo:
     def get_userInfo(self):
         # noinspection PyBroadException
         try:
-            url = "https://weibo.cn/%d/info" % (self.user_id)
+            url = "https:/*weibo.cn/%d/info" % (self.user_id)
             html = requests.get(url, cookies=self.cookie, headers=self.agent).content
             selector = etree.HTML(html)
-            info = ";".join(selector.xpath('body/div[@class="c"]//text()'))  # 获取所有文本
+            info = ";".join(selector.xpath('body/div[@class="c"]/*text()'))  # 获取所有文本
             # 获取用户基本信息
             nickname = re.findall('昵称[：:]?(.*?);', info)  # 正则表达式，冒号后面的内容
-            image = selector.xpath('body/div[@class="c"]//img/@src')
+            image = selector.xpath('body/div[@class="c"]/*img/@src')
             gender = re.findall('性别[：:]?(.*?);', info)
             place = re.findall('地区[：:]?(.*?);', info)
             briefIntroduction = re.findall('简介[：:]?(.*?);', info)
@@ -103,11 +103,11 @@ class Weibo:
             #  微博粉丝等
             # noinspection PyBroadException
             try:
-                urlothers = "https://weibo.cn/attgroup/opening?uid=%d" % (self.user_id)
+                urlothers = "https:/*weibo.cn/attgroup/opening?uid=%d" % (self.user_id)
                 r = requests.get(urlothers, headers=self.agent, cookies=self.cookie)
                 if r.status_code == 200:
                     selector = etree.HTML(r.content)
-                    texts = ";".join(selector.xpath('//body//div[@class="tip2"]/a//text()'))
+                    texts = ";".join(selector.xpath('/*body/*div[@class="tip2"]/a/*text()'))
                     if texts:
                         num_tweets = re.findall('微博\[(\d+)\]', texts)
                         num_follows = re.findall('关注\[(\d+)\]', texts)
@@ -139,8 +139,8 @@ class Weibo:
         try:
             html = requests.get(weibo_link, headers=self.agent, cookies=self.cookie).content
             selector = etree.HTML(html)
-            info = selector.xpath("//div[@class='c']")[1]
-            wb_content = info.xpath('//div[@id="M_"]//span[@class="ctt"]')[0].xpath(
+            info = selector.xpath("/*div[@class='c']")[1]
+            wb_content = info.xpath('/*div[@id="M_"]/*span[@class="ctt"]')[0].xpath(
                 "string(.)").replace(u"\u200b", "").encode(sys.stdout.encoding, "ignore").decode(
                 sys.stdout.encoding)
             return wb_content
@@ -188,7 +188,7 @@ class Weibo:
             is_retweet = info.xpath("div/span[@class='cmt']")  # 转发微博
             if a_link:
                 if a_link[-1].xpath("text()")[0] == u"全文":
-                    weibo_link = "https://weibo.cn/comment/" + weibo_id
+                    weibo_link = "https:/*weibo.cn/comment/" + weibo_id
                     wb_content = self.get_long_weibo(weibo_link)
                     if wb_content:
                         if not is_retweet:
@@ -293,26 +293,26 @@ class Weibo:
     def get_weibo_info(self):
         # noinspection PyBroadException
         try:
-            url = "https://weibo.cn/u/%d?filter=%d&page=1" % (
+            url = "https:/*weibo.cn/u/%d?filter=%d&page=1" % (
                 self.user_id, self.filter
             )
             html = requests.get(url, cookies=self.cookie, headers=self.agent).content
             selector = etree.HTML(html)
-            if not selector.xpath("//input[@name='mp']"):  # 判断是否为第一页
+            if not selector.xpath("/*input[@name='mp']"):  # 判断是否为第一页
                 page_num = 1
             else:
                 page_num = (int)(selector.xpath(
-                    "//input[@name='mp']")[0].attrib["value"])
+                    "/*input[@name='mp']")[0].attrib["value"])
             pattern = r"\d+\.?\d*"  # 匹配字符中连续的字符串
             print(page_num)
             for page in range(1, page_num + 1):
-                url2 = "https://weibo.cn/u/%d?filter=%d&page=%d" % (
+                url2 = "https:/*weibo.cn/u/%d?filter=%d&page=%d" % (
                     self.user_id, self.filter, page)
                 html2 = requests.get(url2, headers=self.agent, cookies=self.cookie).content
                 selector2 = etree.HTML(html2)
-                infos = selector2.xpath("//div[@class='c' and @id]")
+                infos = selector2.xpath("/*div[@class='c' and @id]")
                 print(infos)
-                info_s = selector2.xpath("//div[@class='c']")
+                info_s = selector2.xpath("/*div[@class='c']")
                 is_empty = info_s[0].xpath("div/span[@class='ctt']")
                 if is_empty:  # 判断是否有微博
                     for info in infos:
@@ -417,8 +417,8 @@ class Weibo:
 
     # 获取微博评论信息
     def get_comment_info(self, id):
-        c_urls = 'https://m.weibo.cn/api/comments/show?id=' + id + '&page={}'
-        wb_url = 'https://m.weibo.cn/detail/' + id
+        c_urls = 'https:/*m.weibo.cn/api/comments/show?id=' + id + '&page={}'
+        wb_url = 'https:/*m.weibo.cn/detail/' + id
         wb_r = requests.get(wb_url, headers=self.agent, cookies=self.cookie).content
         soup = BeautifulSoup(wb_r, 'lxml')
         src = soup.select('body script')[0].string
@@ -426,18 +426,18 @@ class Weibo:
         src_tree = js2xml.pretty_print(src_text)
         selector2 = etree.HTML(src_tree)
         # 基本信息
-        wb_id = selector2.xpath("//property[@name='id']//text()")[1]
-        wb_userName = selector2.xpath("//property[@name='screen_name']/string//text()")[0]
-        wb_userId = selector2.xpath("//property[@name='profile_url']//text()")[1].split('uid=')[1]
+        wb_id = selector2.xpath("/*property[@name='id']/*text()")[1]
+        wb_userName = selector2.xpath("/*property[@name='screen_name']/string/*text()")[0]
+        wb_userId = selector2.xpath("/*property[@name='profile_url']/*text()")[1].split('uid=')[1]
         wb_userId = wb_userId[0:10]   # 只有前10位才是ID
-        wb_user_profile_image_url = selector2.xpath("//property[@name='profile_image_url']//text()")[1]
-        wb_created_at = selector2.xpath("//property[@name='created_at']//text()")[1]
-        wb_source = selector2.xpath("//property[@name='source']//text()")[1]
-        wb_text = selector2.xpath("//property[@name='text']//text()")[1]
-        wb_pic_ids = selector2.xpath("//property[@name='pic_ids']/array/string//text()")
-        wb_reposts = selector2.xpath("//property[@name='reposts_count']//@value")[0]
-        wb_comments = selector2.xpath("//property[@name='comments_count']//@value")[0]
-        wb_like = selector2.xpath("//property[@name='attitudes_count']//@value")[0]
+        wb_user_profile_image_url = selector2.xpath("/*property[@name='profile_image_url']/*text()")[1]
+        wb_created_at = selector2.xpath("/*property[@name='created_at']/*text()")[1]
+        wb_source = selector2.xpath("/*property[@name='source']/*text()")[1]
+        wb_text = selector2.xpath("/*property[@name='text']/*text()")[1]
+        wb_pic_ids = selector2.xpath("/*property[@name='pic_ids']/array/string/*text()")
+        wb_reposts = selector2.xpath("/*property[@name='reposts_count']/*@value")[0]
+        wb_comments = selector2.xpath("/*property[@name='comments_count']/*@value")[0]
+        wb_like = selector2.xpath("/*property[@name='attitudes_count']/*@value")[0]
 
         commentWeiboInfo = CommentWeiboInfo()
         if wb_id:
@@ -459,7 +459,7 @@ class Weibo:
             filepath = path.abspath(path.join(os.getcwd(), "webview/static"))
             print(filepath)
             for wb_pic_id in wb_pic_ids:
-                with urllib.request.urlopen("https://wx2.sinaimg.cn/large/" + wb_pic_id, timeout=30) as response, open(
+                with urllib.request.urlopen("https:/*wx2.sinaimg.cn/large/" + wb_pic_id, timeout=30) as response, open(
                         filepath + "\\" + wb_pic_id + ".jpg", 'wb') as f_save:
                     print("下载图片%s" % wb_pic_id)
                     f_save.write(response.read())

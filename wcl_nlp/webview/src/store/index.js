@@ -1,4 +1,4 @@
-// 全局变量文件
+/* 全局变量文件*/
 import Vue from 'vue'
 import Vuex from 'vuex'
 import user from './userInfo'

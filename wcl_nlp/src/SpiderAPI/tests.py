@@ -21,7 +21,7 @@ from lxml import etree
 
 
 if __name__ == '__main__':
-    url = 'https://weibo.cn/u/5094308006?filter=1&page=1'
+    url = 'https:/*weibo.cn/u/5094308006?filter=1&page=1'
 
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
@@ -32,20 +32,20 @@ if __name__ == '__main__':
     }
     html = requests.get(url, cookies=cookies, headers=headers).content
     selector = etree.HTML(html)
-    if not selector.xpath("//input[@name='mp']"):  # 判断是否为第一页
+    if not selector.xpath("/*input[@name='mp']"):  # 判断是否为第一页
         page_num = 1
     else:
         page_num = (int)(selector.xpath(
-            "//input[@name='mp']")[0].attrib["value"])
+            "/*input[@name='mp']")[0].attrib["value"])
     print(page_num)
     pattern = r"\d+\.?\d*"  # 匹配字符中连续的字符串
     for page in range(1, page_num + 1):
-        url2 = "https://weibo.cn/u/5094308006?filter=1&page=%d" % page
+        url2 = "https:/*weibo.cn/u/5094308006?filter=1&page=%d" % page
         html2 = requests.get(url2, headers=headers, cookies=cookies).content
         selector2 = etree.HTML(html2)
-        infos = selector2.xpath("//div[@class='c' and @id]")
+        infos = selector2.xpath("/*div[@class='c' and @id]")
         # print(infos)
-        info_s = selector2.xpath("//div[@class='c']")
+        info_s = selector2.xpath("/*div[@class='c']")
         is_empty = info_s[0].xpath("div/span[@class='ctt']")
         if is_empty:  # 判断是否有微博
             for info in infos:

@@ -22,7 +22,7 @@ export default {
 
 </script>
 
-<style lang="scss" scoped>
+<style lang="css" scoped>
   .footer {
     position: fixed;
     bottom: 30px;

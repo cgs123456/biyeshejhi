@@ -1,5 +1,5 @@
 ;(function($){
-    // add select render
+    /* add select render */
     $.fn.exform.renders.push(function(f){
       if($.fn.selectize){
         f.find('select:not(.select-search):not([multiple=multiple])').selectize();
@@ -32,7 +32,7 @@
                     });
                 }
             });
-        })
-    }});
-})(jQuery)
-
+        });
+      }
+    });
+})(jQuery);

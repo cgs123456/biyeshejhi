@@ -1,7 +1,7 @@
 """wcl_nlp URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/2.2/topics/http/urls/
+    https:/*docs.djangoproject.com/en/2.2/topics/http/urls/
 Examples:
 Function views
     1. Add an import:  from my_app import views
@@ -16,17 +16,16 @@ Including another URLconf
 
 
 from django.urls import path
-from django.conf.urls import url, include
 from django.contrib import admin
 from django.views.generic.base import TemplateView, RedirectView
 from SpiderAPI.views import SpiderWeibo
 from ScrapydAPI.views import ScrapydWeibo
 from SnowNLPAPI.views import SnowNLPWeibo
-import xadmin
+
 
 
 urlpatterns = [
-    path('xadmin/', xadmin.site.urls),
+   
     path('spiderapi/', SpiderWeibo.SpiderAPI, name="spiderapi"),
     path('tweetsapi/', SpiderWeibo.TweetsAPI, name="tweetsapi"),
     path('wordcloudapi/', SpiderWeibo.WordCloudAPI, name="wordcloudapi"),

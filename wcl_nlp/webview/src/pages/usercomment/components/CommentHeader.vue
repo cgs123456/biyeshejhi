@@ -84,7 +84,7 @@ jackie_chen      1.0         单条微博分析详情页面
         <ve-wordcloud :data="getRows()" :settings="chartSettings1" :showTooltip="true"></ve-wordcloud>
         <div class="well fz14" style="padding: 15px 2px;font-size: 13px;margin-bottom: 0;background-color:#f7f9fa !important">
           该微博评论中<strong id="analysis_time">{{this.usercomment.cipin[0].word}}</strong>频率最高,达到
-          <strong id="bloger">{{this.usercomment.cipin[0].count}}</strong>次。其次是<strong id="analysis_time">
+          <strong id="bloger">{{this.usercomment.cipin[0].count}}</strong>次。分别是<strong id="analysis_time">
           {{this.usercomment.cipin[1].word}}、{{this.usercomment.cipin[2].word}}、{{this.usercomment.cipin[3].word}}</strong>
           分别达到<strong id="bloger">{{this.usercomment.cipin[1].count}}、{{this.usercomment.cipin[2].count}}、{{this.usercomment.cipin[3].count}}</strong>次。
         </div>
@@ -134,12 +134,12 @@ import axios from 'axios'
 export default {
   name: 'CommentHeader',
   data () {
-    // 评论趋势设置
+    /* 评论趋势设置 */
     this.chartSettings = {
       stack: { '用户': ['评论用户'] },
       area: true
     }
-    // 词云设置
+    /* 词云设置 */
     this.chartSettings1 = {
       sizeMin: 30,
       sizeMax: 60
@@ -202,7 +202,7 @@ export default {
         this.mopen()
       })
   },
-  // 属性调用
+  /* 属性调用 */
   computed: {
     ...mapState({
       usercomment: state => state.usercomment,
@@ -235,7 +235,7 @@ export default {
     commentInfo: function () {
       return eval('(' + this.usercomment.info + ')')
     },
-    // 绘制折线图
+    /* 绘制折线图 */
     commentchart: function () {
       let mrows = []
       for (let i = 0; i < 10; i++) {
@@ -250,7 +250,7 @@ export default {
       }
       return mchartData
     },
-    // 用户引爆点表格
+    /* 用户引爆点表格 */
     tableData: function () {
       let date = []
       for (let i = 0; i < 10; i++) {
@@ -264,7 +264,7 @@ export default {
       return date
     }
   },
-  // 函数调用
+  /* 函数调用 */
   methods: {
     aaa: function () {
       return this.userInfo
@@ -293,7 +293,7 @@ export default {
       let seconds = date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds()
       return year + '-' + month + '-' + day + ' ' + hours + ':' + minutes + ':' + seconds
     },
-    // 最大评论数
+    /* 最大评论数 */
     maxComment: function () {
       for (let i = 0; i < this.usercomment.commentqushi.length; i++) {
         if (this.usercomment.commentqushi[10].count === this.usercomment.commentqushi[i].count) {
@@ -301,7 +301,7 @@ export default {
         }
       }
     },
-    // 词云
+    /* 词云 */
     getRows () {
       let res = []
       for (let i = 0; i < this.usercomment.cipin.length; i++) {
@@ -317,10 +317,11 @@ export default {
       return chartData
     },
     minganData () {
+      let minganValue = parseFloat(this.usercomment.mingan.toFixed(2))
       let chartData = {
         columns: ['敏感程度', '敏感', '非敏感'],
         rows: [
-          { '敏感程度': '敏感程度', '敏感': this.usercomment.mingan.toFixed(2), '非敏感': 1 - this.usercomment.mingan.toFixed(2) }
+          { '敏感程度': '敏感程度', '敏感': minganValue, '非敏感': 1 - minganValue }
         ]
       }
       return chartData
@@ -359,7 +360,7 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="css" scoped>
   .clear {
     clear: both;
   }

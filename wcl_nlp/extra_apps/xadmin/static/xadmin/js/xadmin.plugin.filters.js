@@ -2,12 +2,12 @@
    
   $(function(){
     
-	// filter
+    /* filter */
     $('.filter-multiselect input[type=checkbox]').click(function(e){
     	window.location.href = $(this).parent().attr('href');
     });
     
-    // menber filter
+    /* member filter */
     $('.filter-number .remove').click(function(e){
       $(this).parent().parent().find('input[type="number"]').val('');
     });
@@ -35,7 +35,7 @@
         } else {
           el.find('button[type=submit]').attr('disabled', 'disabled');
         }
-      }
+      };
       
       start_date.on('changeDate', function(ev){
           var startdate = start_date.data('date');

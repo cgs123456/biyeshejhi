@@ -1,18 +1,11 @@
 <template>
   <div class="user">
-    <!-- {{this.userInfo[0].pk}}
-        <br><br>
-        {{this.userInfo[0].fields.Image}}
-        <br><br>
-        {{this.img[0]}}
-        <br><br>
-        {{this.imglen}} -->
+    <!-- 调试信息已注释 -->
     <div class="user-header">
       <div class="photo-warp">
         <img :src="this.img[0]" class="wb-img">
       </div>
       <div class="wb-name">
-        <!-- <img class="wb-logo" src="//www.sinaimg.cn/blog/developer/wiki/LOGO_32x32.png"> -->
         <span class="name">{{this.userInfo[0].fields.NickName}}</span>
         <img :src="this.imgsex" class="sex">
         <div class="wb-brief">{{this.wbbrief}}</div>
@@ -43,7 +36,6 @@
             <el-card class="box-card-detail">
               <div slot="header" class="clearfix">
                 <span>基本信息</span>
-                <!-- <el-button style="float: right; padding: 3px 0" type="text"></el-button> -->
               </div>
               <div class="text item3 item3-txt">
                 微博勋章
@@ -128,7 +120,7 @@
                 <span>敏感率</span>
                 <el-button style="float: right; padding: 3px 0" type="text"></el-button>
               </div>
-              <div v-if="this.chartData ==='' " style="padding: 0.3125rem;">敏感率加载中...</div>
+              <div v-if="this.minganData === '' || !this.minganData.rows || this.minganData.rows.length === 0" style="padding: 0.3125rem;">敏感率加载中...</div>
               <div v-else>
                 <ve-bar :data="this.minganData" height="3.4rem" style="margin-top: .3125rem;"></ve-bar>
                 <div class="well fz14" style="padding: 0.3125rem;font-size: 13px;margin-bottom: 0;background-color:#f7f9fa !important">
@@ -142,7 +134,6 @@
                   </strong>敏感范围内。
                 </div>
               </div>
-              <!-- <img v-else :src="'data:image/png;base64,'+ico" class="avatar"> -->
             </el-card>
             <el-card class="box-card-detail ciyun">
               <div slot="header" class="clearfix">
@@ -182,7 +173,7 @@
                 <div class="tweets-header">
                   <div class="wb-id">
                     <span>微博ID：{{tweet.pk}}</span>
-<!--                    爬取的微博编号，以目前的系统框架不可跳转到原微博-->
+                    <!-- 爬取的微博编号，以目前的系统框架不可跳转到原微博 -->
                     <el-button style="float: right; padding: 3px 0" type="text">{{tweet.fields.PubTime}} </el-button>
                   </div>
                   <div class="wb-content">
@@ -194,10 +185,8 @@
                       来自{{tweet.fields.Tools}}
                     </span>
                     <button class="el-button el-button--default el-button--small el-b">点赞{{tweet.fields.Like}}</button>
-                    <button
-                      class="el-button el-button--default el-button--small el-b">评论{{tweet.fields.Comment}}</button>
-                    <button
-                      class="el-button el-button--default el-button--small el-b">转发{{tweet.fields.Transfer}}</button>
+                    <button class="el-button el-button--default el-button--small el-b">评论{{tweet.fields.Comment}}</button>
+                    <button class="el-button el-button--default el-button--small el-b">转发{{tweet.fields.Transfer}}</button>
                   </div>
                 </div>
                 <div class="tweets-footer clearfix">
@@ -216,9 +205,9 @@
                   </div>
                   <div class="footer-right">
                     <el-progress class="progress" v-if="tweet.fields.sentiments>0.5" type="circle"
-                      :percentage="tweet.fields.sentiments*100" color="#13ce66" :format="format" ></el-progress>
+                      :percentage="tweet.fields.sentiments*100" color="#13ce66" :format="format"></el-progress>
                     <el-progress class="progress" v-else type="circle" :percentage="tweet.fields.sentiments*100"
-                      color="#ff4949" :format="format1">情感消极</el-progress>
+                      color="#ff4949" :format="format1"></el-progress>
                   </div>
                 </div>
                 <hr style="background-color:#50bfff;height:1px;border:none;">
@@ -278,7 +267,6 @@ export default {
   computed: {
     ...mapState({
       user: state => state.user,
-      // mytweets:state=>state.usertweets,
       total: state => state.total
     }),
     userInfo: function () {
@@ -313,10 +301,10 @@ export default {
   },
   methods: {
     format (sentiments) {
-      return `情感积极`
+      return '情感积极'
     },
     format1 (sentiments) {
-      return `情感消极`
+      return '情感消极'
     },
     msrcs: function () {
       if (this.imglen > 1) {
@@ -355,10 +343,11 @@ export default {
             let mingan = {
               columns: ['敏感率', '敏感', '非敏感'],
               rows: [
-                { '敏感率': '敏感率', '敏感': response.data.mingan.toFixed(2), '非敏感': 1 - response.data.mingan.toFixed(2) }
+                { '敏感率': '敏感率', '敏感': parseFloat(response.data.mingan.toFixed(2)), '非敏感': parseFloat((1 - response.data.mingan).toFixed(2)) }
               ]
             }
             this.minganData = mingan
+            
             // 情感分析折线图
             let tu = eval('(' + response.data.tu + ')')
             this.emtionanaly.len = tu.length
@@ -409,11 +398,8 @@ export default {
           page: val
         })
       ).then((response) => {
-        // mytweets->usertweets
-        this.$store.state.usertweets = null
         this.$store.state.usertweets = response.data.data
         this.mytweets = response.data.data
-        // console.log(this.$store.state.usertweets)
       })
     },
     ...mapMutations(['changeUserTweets'])
@@ -422,158 +408,144 @@ export default {
     this.open()
   }
 }
-
 </script>
 
-<style lang="scss" scoped>
-  .user {
-    padding: 0 100px 0 100px;
-    margin-bottom: 20px;
-    margin: 0 auto;
-    max-width: 1100px;
-    min-width: 1000px;
+<style lang="css" scoped>
+.user {
+  padding: 0 100px 0 100px;
+  margin-bottom: 20px;
+  margin: 0 auto;
+  max-width: 1100px;
+  min-width: 1000px;
 
-    .user-header {
-      width: 100%;
-      text-align: center;
-      height: 200px;
+  .user-header {
+    width: 100%;
+    text-align: center;
+    height: 200px;
 
-      .photo-warp {
+    .photo-warp {
+      width: 120px;
+      height: 120px;
+      margin: 0 auto;
+      border: 1px solid #fff;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      position: relative;
+
+      .wb-img {
         width: 120px;
         height: 120px;
-        margin: 0 auto;
-        border: 1px solid #fff;
-        background: rgba(255, 255, 255, 0.3);
         border-radius: 50%;
-        position: relative;
-
-        .wb-img {
-          width: 120px;
-          height: 120px;
-          border-radius: 50%;
-          display: block;
-        }
-
-        // .wb-sign{
-        //     background-image: url('//img.t.sinajs.cn/t6/style/images/common/icon.png?id=42be5a1688cf4049');
-        //     background-repeat: no-repeat;
-        //     background-position: -50px 0;
-        // }
-      }
-
-      .wb-name {
-        margin-top: 5px;
-
-        .wb-logo {
-          width: 32px;
-          height: 32px;
-          vertical-align: middle;
-        }
-
-        .name {
-          vertical-align: middle;
-          color: #fff;
-          font-size: .35rem;
-        }
-
-        .sex {
-          width: 30px;
-          height: 30px;
-          vertical-align: middle;
-        }
-
-        .wb-brief {
-          margin-top: 10px;
-          color: #fff;
-          font-size: .2rem;
-        }
+        display: block;
       }
     }
 
-    .info-left {
-      font-size: .2rem;
+    .wb-name {
+      margin-top: 5px;
 
-      .text {
-        font-size: 18px;
+      .name {
+        vertical-align: middle;
+        color: #fff;
+        font-size: .35rem;
       }
 
-      .item {
-        margin-bottom: 3px;
-        width: 33%;
-        float: left;
-        text-align: center;
+      .sex {
+        width: 30px;
+        height: 30px;
+        vertical-align: middle;
       }
 
-      .item3 {
-        margin-bottom: 10px;
-        width: 30%;
-        float: left;
-        text-align: center;
-      }
-
-      .item3-detail {
-        margin-bottom: 10px;
-        width: 70%;
-        float: left;
-        text-align: center;
-      }
-
-      .wb-xz {
-        width: 22px;
-        height: 22px;
-      }
-
-      .item3-txt {
-        color: #808080;
-      }
-
-      .item1 {
-        border-right: 1px solid #c2c2c2;
-      }
-
-      .item2 {
-        color: #808080;
-        margin-bottom: 10px;
-      }
-
-      .clearfix:before,
-      .clearfix:after {
-        display: table;
-        content: "";
-      }
-
-      .clearfix:after {
-        clear: both
-      }
-
-      .box-card {
-        width: 100%;
-      }
-
-      .box-card-detail {
-        width: 100%;
-        margin-top: 30px;
-        .avatar {
-          width: 100%;
-        }
+      .wb-brief {
+        margin-top: 10px;
+        color: #fff;
+        font-size: .2rem;
       }
     }
+  }
 
-    .info-right {
-      margin-left: 3%;
-      vertical-align: top;
-      font-size: .2rem;
+  .info-left {
+    font-size: .2rem;
 
-      .tweets-header {
-        .wb-id {
-          font-size: 14px;
-          color: #808080;
-        }
+    .text {
+      font-size: 18px;
+    }
+
+    .item {
+      margin-bottom: 3px;
+      width: 33%;
+      float: left;
+      text-align: center;
+    }
+
+    .item3 {
+      margin-bottom: 10px;
+      width: 30%;
+      float: left;
+      text-align: center;
+    }
+
+    .item3-detail {
+      margin-bottom: 10px;
+      width: 70%;
+      float: left;
+      text-align: center;
+    }
+
+    .wb-xz {
+      width: 22px;
+      height: 22px;
+    }
+
+    .item3-txt {
+      color: #808080;
+    }
+
+    .item1 {
+      border-right: 1px solid #c2c2c2;
+    }
+
+    .item2 {
+      color: #808080;
+      margin-bottom: 10px;
+    }
+
+    .clearfix:before,
+    .clearfix:after {
+      display: table;
+      content: "";
+    }
+
+    .clearfix:after {
+      clear: both;
+    }
+
+    .box-card {
+      width: 100%;
+    }
+
+    .box-card-detail {
+      width: 100%;
+      margin-top: 30px;
+      .avatar {
+        width: 100%;
       }
+    }
+  }
 
-      .tweets-footer {
-        background-color: #ecf8ff;
-        border-radius: 4px;
+  .info-right {
+    margin-left: 3%;
+    vertical-align: top;
+    font-size: .2rem;
+
+    .tweets-header {
+      .wb-id {
+        font-size: 14px;
+        color: #808080;
+      }
+    }
+  }
+}
+</style>
         border-left: 5px solid #50bfff;
         height: 105px;
         margin: 10px 0;
@@ -597,7 +569,6 @@ export default {
           }
         }
       }
-
       .wb-content {
         margin: 10px 0;
         font-size: 15px;
@@ -632,7 +603,7 @@ export default {
   }
 
   .ciyun {
-    /deep/ .el-card__body {
+     .el-card__body {
       padding: 0;
     }
   }

@@ -56,7 +56,7 @@ export default {
     }
   },
   methods: {
-    // 获取用户头像名字基本信息
+    /* 获取用户头像名字基本信息 */
     getQuick () {
       axios.get('http://localhost:8000/getquick/').then((response) => {
         let res = JSON.parse(response.data)
@@ -66,17 +66,17 @@ export default {
         this.infos = res
       })
     },
-    // 建立用户分组
+    /* 建立用户分组 */
     getLasted () {
       axios.get('http://localhost:8000/getlasted/').then((response) => {
-        let res = JSON.parse(response.data.user) // ID image name
-        let group = JSON.parse(response.data.target) // uid（多个ID） group
-        let count = JSON.parse(response.data.count)// [（组号， 个数）]
+        let res = JSON.parse(response.data.user) /* ID image name */
+        let group = JSON.parse(response.data.target) /* uid（多个ID） group */
+        let count = JSON.parse(response.data.count)/* [（组号， 个数）] */
         let newres = []
         for (let i = 0; i < res.length; i++) {
           for (let j = 0; j < group.length; j++) {
             if (res[i]._id === group[j].uid) {
-              // 给单独用户分组
+              /* 给单独用户分组 */
               res[i].group = group[j].group
             }
           }
@@ -86,17 +86,17 @@ export default {
             'group': count[k][0],
             'info': []
           })
-          // 建立用户分组
+          /* 建立用户分组 */
           for (let l = 0; l < res.length; l++) {
             if (newres[k].group === res[l].group) {
-              newres[k].info.push(res[l]) // 将信息传入newres
+              newres[k].info.push(res[l]) /* 将信息传入newres */
             }
           }
         }
         this.infos1 = newres
       })
     },
-    // 建立单条微博分组
+    /* 建立单条微博分组 */
     getWeibo () {
       axios.get('http://localhost:8000/getweibo/').then((response) => {
         let res = JSON.parse(response.data)
@@ -109,7 +109,7 @@ export default {
     website: function (userId) {
       window.open('https://weibo.com/' + userId)
     },
-    // 单条微博详细信息
+    /* 单条微博详细信息 */
     goInComment: function (wbId) {
       this.openFullScreen2()
       axios.post('http://localhost:8000/getcomment/',
@@ -150,7 +150,7 @@ export default {
       })
       console.log(group)
     },
-    // 个人用户详细信息
+    /* 个人用户详细信息 */
     goInWb: function (id) {
       this.openFullScreen2()
       axios.post('http://localhost:8000/spiderapi/',
@@ -177,22 +177,23 @@ export default {
     }
   },
   mounted () {
-    this.getQuick()
-    this.getLasted()
-    this.getWeibo()
+    // 这些方法已被注释，因此暂时注释掉调用
+    // this.getQuick()
+    // this.getLasted()
+    // this.getWeibo()
   }
 }
 
 </script>
 
-<style lang="scss" scoped>
+<style lang="css" scoped>
   .mytimestamp {
     width: 70%;
     max-width: 900px;
     margin: 0 auto;
   }
 
-  /deep/ .el-timeline-item__timestamp {
+   .el-timeline-item__timestamp {
     color: #fff;
   }
 

@@ -20,7 +20,7 @@
           var cookies = document.cookie.split(';');
           for (var i = 0; i < cookies.length; i++) {
               var cookie = jQuery.trim(cookies[i]);
-              // Does this cookie string begin with the name we want?
+              /* Does this cookie string begin with the name we want?*/
               if (cookie.substring(0, name.length + 1) == (name + '=')) {
                   cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                   break;
@@ -30,7 +30,7 @@
       return cookieValue;
   }
 
-  //dropdown submenu plugin
+  /*dropdown submenu plugin*/
   $(document)
     .on('click.xa.dropdown.data-api touchstart.xa.dropdown.data-api', '.dropdown-submenu', function (e) { e.stopPropagation(); })
     .on('click.xa.dropdown.data-api', function(e){
@@ -48,24 +48,25 @@
     });
   }
   
-  //toggle class button
+  /*toggle class button*/
   $('body').on('click.xa.togglebtn.data-api', '[data-toggle=class]', function (e) {
     var $this  = $(this), href
     var target = $this.attr('data-target')
         || e.preventDefault()
-        || (href = $this.attr('href')) && href.replace(/.*(?=#[^\s]+$)/, '') //strip for ie7
-    var className = $this.attr('data-class-name')
-    $(target).toggleClass(className)
+        || (href = $this.attr('href')) && href.replace(/.*(?=#[^\s]+$)/, ''); /*strip for ie7*/
+    var className = $this.attr('data-class-name');
+    $(target).toggleClass(className);
   })
   
-  // loading btn
-  // $('.btn.btn-loading,.btn[type=submit]')
-  //   .click(function () {
-  //     var btn = $(this)
-  //     btn.button('loading')
-  //   })
+  /* loading btn
+  $('.btn.btn-loading,.btn[type=submit]')
+    .click(function () {
+      var btn = $(this)
+      btn.button('loading')
+    })
+  */
 
-  //.nav-content bar nav-menu
+  /*.nav-content bar nav-menu*/
   $('.navbar-xs .navbar-nav > li')
     .on('shown.bs.dropdown', function(e){
       $(this).find('>.dropdown-menu').css('max-height', $(window).height()-120);
@@ -76,7 +77,7 @@
       $(this).parent().find('>li').removeClass('hidden-xs');
     });
 
-  // dashboard widget
+  /* dashboard widget*/
   $('.widget-form').each(function(e){
     var el = $(this);
     el.find('.btn-remove').click(function(){
@@ -85,12 +86,12 @@
     });
   });
 
-  // g-search
+  /* g-search*/
   $('#g-search .dropdown-menu a').click(function(){
       $('#g-search').attr('action', $(this).data('action')).submit();
   })
 
-  // save settings
+  /* save settings*/
   $.save_user_settings = function(key, value, success, error){
     var csrftoken = $.getCookie('csrftoken');
     $.ajax({
@@ -105,4 +106,4 @@
     });
   }
   
-})(jQuery)
+})(jQuery);

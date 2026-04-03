@@ -57,12 +57,12 @@
 </template>
 
 <script>
-// import {mapState} from 'vuex'
+import { mapState } from 'vuex'
 import axios from 'axios'
 import Qs from 'qs'
 
 export default {
-  name: 'IndexMain',
+  name: 'Main',
   data () {
     return {
       weiboId: '',
@@ -82,10 +82,10 @@ export default {
             weiboId: this.weiboId
           }))
           .then((response) => {
-            // console.log(response.data.data)
-            // console.log(response.data.tweets)
-            // console.log(response.data.total)
-            // console.log(response.data.sentiments)
+            /* console.log(response.data.data)
+               console.log(response.data.tweets)
+               console.log(response.data.total)
+               console.log(response.data.sentiments) */
             this.$store.state.user = response.data.data
             this.$store.state.usertweets = response.data.tweets
             this.$store.state.total = response.data.total
@@ -112,10 +112,9 @@ export default {
     }
   }
 }
-
 </script>
 
-<style lang="scss" scoped>
+<style lang="css" scoped>
   .home-des {
     text-align: center;
     margin-top: 130px;
@@ -206,10 +205,10 @@ export default {
     text-align: center;
     font-size: 1.4em;
     height: 2.7em;
-    // border-radius:4px;
+    /* border-radius:4px; */
     border: 1px solid #c8cccf;
     color: #6a6f77;
-    -web-kit-appearance: none;
+    -webkit-appearance: none;
     -moz-appearance: none;
     display: block;
     outline: 0;
@@ -230,5 +229,4 @@ export default {
     border: none;
     color: #fff;
   }
-
 </style>

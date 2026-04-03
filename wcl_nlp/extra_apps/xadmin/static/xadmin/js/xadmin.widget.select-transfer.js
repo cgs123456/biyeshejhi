@@ -1,4 +1,3 @@
-
 ;(function($){
 
   var SelectBox = function(element, options) {
@@ -19,13 +18,13 @@
     }
     this.form = $(findForm(element));
 
-    // link
+    /* link */
     this.btn_add_all = el.find(".btn.selector-chooseall");
     this.btn_remove_all = el.find(".btn.selector-clearall");
     this.btn_add = el.find(".btn.selector-add");
     this.btn_remove = el.find(".btn.selector-remove");
 
-    // setup event
+    /* setup event */
     this.filter_input.keyup($.proxy(this.filter_key_up, this));
     this.filter_input.keydown($.proxy(this.filter_key_down, this));
 
@@ -43,7 +42,7 @@
 
     this.form.submit($.proxy(this.select_all, this));
 
-    // init cache
+    /* init cache */
     var from_cache = new Array();
     for (var i = 0; (node = this.from_box[0].options[i]); i++) {
       from_cache.push({value: node.value, text: node.text, displayed: 1});
@@ -64,7 +63,7 @@
     redisplay : function(box){
       var select = box[0];
       var cache = box.data('cache');
-      select.options.length = 0; // clear all options
+      select.options.length = 0; /* clear all options */
       for (var i = 0, j = cache.length; i < j; i++) {
           var node = cache[i];
           if (node.displayed) {
@@ -73,8 +72,8 @@
       }
     },
     filter: function(text) {
-      // Redisplay the HTML select box, displaying only the choices containing ALL
-      // the words in text. (It's an AND search.)
+      /* Redisplay the HTML select box, displaying only the choices containing ALL */
+      /* the words in text. (It's an AND search.) */
       var tokens = text.toLowerCase().split(/\s+/);
       var node, token;
       for (var i = 0; (node = this.from_box.data('cache')[i]); i++) {
@@ -112,7 +111,7 @@
         box.data('cache').push({value: option.value, text: option.text, displayed: 1});
     },
     cache_contains: function(box, value) {
-        // Check if an item is contained in the cache
+        /* Check if an item is contained in the cache */
         var node;
         for (var i = 0; (node = box.data('cache')[i]); i++) {
             if (node.value == value) {
@@ -161,7 +160,7 @@
                 if (a < b) return -1;
             }
             catch (e) {
-                // silently fail on IE 'unknown' exception
+                /* silently fail on IE 'unknown' exception */
             }
             return 0;
         } );
@@ -175,16 +174,16 @@
     refresh_icons: function() {
         var is_from_selected = this.from_box.find('option:selected').length > 0;
         var is_to_selected = this.to_box.find('option:selected').length > 0;
-        // Active if at least one item is selected
+        /* Active if at least one item is selected */
         this.btn_add.toggleClass('disabled', !is_from_selected);
         this.btn_remove.toggleClass('disabled', !is_to_selected);
-        // Active if the corresponding box isn't empty
+        /* Active if the corresponding box isn't empty */
         this.btn_add_all.toggleClass('disabled', this.from_box.find('option').length == 0);
         this.btn_remove_all.toggleClass('disabled', this.to_box.find('option').length == 0);
     },
     filter_key_up: function(event) {
       var from = this.from_box[0];
-      // don't submit form if user pressed Enter
+      /* don't submit form if user pressed Enter */
       if ((event.which && event.which == 13) || (event.keyCode && event.keyCode == 13)) {
         var temp = from.selectedIndex;
         this.move();
@@ -201,18 +200,18 @@
       if ((event.which && event.which == 13) || (event.keyCode && event.keyCode == 13)) {
         return false;
       }
-      // right arrow -- move across
+      /* right arrow -- move across */
       if ((event.which && event.which == 39) || (event.keyCode && event.keyCode == 39)) {
           var old_index = from.selectedIndex;
           this.move();
           from.selectedIndex = (old_index == from.length) ? from.length - 1 : old_index;
           return false;
       }
-      // down arrow -- wrap around
+      /* down arrow -- wrap around */
       if ((event.which && event.which == 40) || (event.keyCode && event.keyCode == 40)) {
           from.selectedIndex = (from.length == from.selectedIndex + 1) ? 0 : from.selectedIndex + 1;
       }
-      // up arrow -- wrap around
+      /* up arrow -- wrap around */
       if ((event.which && event.which == 38) || (event.keyCode && event.keyCode == 38)) {
           from.selectedIndex = (from.selectedIndex == 0) ? from.length - 1 : from.selectedIndex - 1;
       }
@@ -238,4 +237,4 @@
     f.find('.select-transfer').select_transfer();
   });
 
-})(jQuery)
+})(jQuery);

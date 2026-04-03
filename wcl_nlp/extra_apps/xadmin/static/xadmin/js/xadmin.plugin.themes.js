@@ -15,7 +15,7 @@
         } else {
             date = options.expires;
         }
-        expires = '; expires=' + date.toUTCString(); // use expires attribute, max-age is not supported by IE
+        expires = '; expires=' + date.toUTCString(); /* use expires attribute, max-age is not supported by IE */
     }
     var path = options.path ? '; path=' + options.path : '';
     var domain = options.domain ? '; domain=' + options.domain : '';

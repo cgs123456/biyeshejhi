@@ -1,4 +1,3 @@
-
 a { cursor: pointer;}
 
 #body-content {
@@ -147,7 +146,7 @@ a { cursor: pointer;}
   margin-top: -8px;
   left: 10%;
 }
-.mask .progress .bar{
+.mask .progress .progress-bar{
   width: 100%;
 }
 
@@ -412,7 +411,7 @@ a[class^="icon-"]:before, a[class*=" icon-"]:before {
 .thumbnail .action-select {position: absolute; top: 0px; left: 20px;}
 .thumbnail .dropdown.related_menu {position: absolute; top: 0px; right: 20px;}
 
-/* panel single **/
+/* panel single */
 .panel-single {
   margin: 50px auto 20px;
   -webkit-border-radius: 5px;

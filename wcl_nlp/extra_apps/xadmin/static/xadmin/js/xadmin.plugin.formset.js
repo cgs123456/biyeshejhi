@@ -72,7 +72,7 @@
                 template = el.html();
             }
 
-            template = el.html(template).text(); // decoded
+            template = el.html(template).text(); /* decoded */
             template = $($.parseHTML(template));
 
             template.removeAttr('id');
@@ -90,14 +90,14 @@
                 insertDeleteLink(row);
                 row.exform();
                 $('#id_' + options.prefix + '-TOTAL_FORMS').val(formCount + 1);
-                // If a post-add callback was supplied, call it with the added form:
+                /* If a post-add callback was supplied, call it with the added form: */
                 if (options.added) options.added(row, $$);
                 return false;
             });
         }
 
         return $$;
-    }
+    };
 
     $.fn.formset.styles = {
         'tab': {
@@ -111,7 +111,7 @@
                 if(rowId){
                     $('a[href=#'+rowId+']').each(function(){
                         update($(this));
-                    })
+                    });
                 }
             },
             removed: function(row, del, $$){

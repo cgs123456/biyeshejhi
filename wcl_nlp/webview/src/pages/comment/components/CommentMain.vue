@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 """
-@File    :   CommentMain.vue.vue
+@File    :   CommentMain.vue
 @Contact :   wcl614074127@icloud.com
 @License :   (C)Copyright 2022
 
@@ -72,7 +72,7 @@ import axios from 'axios'
 // 将url中的参数转为对象；将对象转为url参数形式
 import Qs from 'qs'
 export default {
-  name: 'IndexMain',
+  name: 'CommentMain',
   data () {
     return {
       commentId: '',
@@ -120,10 +120,9 @@ export default {
     }
   }
 }
-
 </script>
 
-<style lang="scss" scoped>
+<style lang="css" scoped>
   .home-des {
     text-align: center;
     margin-top: 130px;
@@ -214,10 +213,10 @@ export default {
     text-align: center;
     font-size: 1.4em;
     height: 2.7em;
-    // border-radius:4px;
+    /* border-radius:4px; */
     border: 1px solid #c8cccf;
     color: #6a6f77;
-    -web-kit-appearance: none;
+    -webkit-appearance: none;
     -moz-appearance: none;
     display: block;
     outline: 0;
@@ -238,5 +237,4 @@ export default {
     border: none;
     color: #fff;
   }
-
 </style>

@@ -17,7 +17,7 @@ jQuery(function() {
             var pos_val = pos.join('|');
             var key = $('#_portal_key').val();
             $.save_user_settings(key, pos_val, function(){
-                //alert('success');
+                /* alert('success'); */
             });
         }
     });
