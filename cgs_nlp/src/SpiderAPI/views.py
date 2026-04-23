@@ -9,6 +9,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.views.decorators.http import require_POST, require_GET
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import ensure_csrf_cookie
 from .models import Target, UserInfo, TweetsInfo, CommentWeiboInfo, CommentInfo, ImgInfo, UserProfile, SearchHistory
 from .spider import Weibo
 from lxml import etree
@@ -327,6 +328,7 @@ class SpiderWeibo:
         result = json.dumps(list(infos), cls=DjangoJSONEncoder)
         return JsonResponse(result, safe=False)
 
+    @ensure_csrf_cookie
     @require_POST
     def auth_register(request):
         """用户注册"""
@@ -360,6 +362,7 @@ class SpiderWeibo:
             traceback.print_exc()
             return JsonResponse({'success': False, 'message': f'注册失败: {str(e)}'})
 
+    @ensure_csrf_cookie
     @require_POST
     def auth_login(request):
         """用户登录"""
