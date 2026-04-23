@@ -1,0 +1,17 @@
+django>=5.2,<6
+django-cors-headers>=4.9
+django-reversion>=6.1
+django-crispy-forms>=2.0
+django-import-export>=4.4
+django-formtools>=2.1
+
+pymysql>=1.1
+requests>=2.33
+js2xml>=0.5
+beautifulsoup4>=4.14
+lxml>=6.0
+wordcloud>=1.9
+jieba>=0.42
+
+tablib>=3.9
+diff-match-patch>=20241021
