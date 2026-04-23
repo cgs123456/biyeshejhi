@@ -12,6 +12,10 @@ import 'element-ui/lib/theme-chalk/index.css'
 import store from './store'
 import preview from 'vue-photo-preview'
 import 'vue-photo-preview/dist/skin.css'
+import axios from 'axios'
+
+// ✅ Axios跨域配置
+axios.defaults.withCredentials = true
 
 // ✅ 所有全局配置不变，你的业务逻辑完全保留
 Vue.config.productionTip = false
