@@ -24,7 +24,7 @@ class WeiboSpider(Spider):
         # 使用环境变量配置
         db_host = os.environ.get('DB_HOST', 'localhost')
         db_port = int(os.environ.get('DB_PORT', 3306))
-        db_name = os.environ.get('DB_NAME', 'WclNlpSystem')
+        db_name = os.environ.get('DB_NAME', 'weibo_nlp')
         db_user = os.environ.get('DB_USER', 'root')
         db_password = os.environ.get('DB_PASSWORD', '')
         

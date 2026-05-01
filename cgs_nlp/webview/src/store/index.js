@@ -1,4 +1,3 @@
-/* 全局变量文件 */
 import Vue from 'vue'
 import Vuex from 'vuex'
 import user from './userInfo'
@@ -14,13 +13,15 @@ import tempids from './tempids'
 Vue.use(Vuex)
 
 export default new Vuex.Store({
-  user,
-  usertweets,
-  tempid,
-  tempids,
-  group,
-  usercomment,
-  total,
-  sentiments,
+  modules: {
+    user,
+    usertweets,
+    tempid,
+    tempids,
+    group,
+    usercomment,
+    total,
+    sentiments
+  },
   mutations
 })

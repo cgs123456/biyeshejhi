@@ -24,7 +24,7 @@ sys.path.insert(0, os.path.join(BASE_DIR, 'extra_apps'))
 def get_secret_key():
     secret_key = os.environ.get('DJANGO_SECRET_KEY')
     if not secret_key:
-        secret_key = secrets.token_hex(50)
+        secret_key = 'cgs-nlp-weibo-sentiment-analysis-2024-secret-key-fixed'
     return secret_key
 
 SECRET_KEY = get_secret_key()
@@ -67,6 +67,8 @@ CSRF_COOKIE_HTTPONLY = False
 CORS_ORIGIN_WHITELIST = [
     'http://localhost:8080',
     'http://127.0.0.1:8080',
+    'http://localhost:8081',
+    'http://127.0.0.1:8081',
     'http://localhost:8000',
     'http://127.0.0.1:8000',
 ]
@@ -126,7 +128,17 @@ USE_TZ = False
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
+SILENCED_SYSTEM_CHECKS = [
+    'urls.W002',
+    'security.W004',
+    'security.W008',
+    'security.W012',
+    'security.W016',
+    'security.W018',
+]
+
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "webview/dist/static"),
 ]

@@ -39,11 +39,13 @@ def process_wordcloud_text(content, stopwords_path, mingan_path):
 
     stopwords = set()
     if path.exists(stopwords_path):
-        stopwords = {line.strip() for line in open(stopwords_path, 'r', encoding='utf-8').readlines()}
+        with open(stopwords_path, 'r', encoding='utf-8') as f:
+            stopwords = {line.strip() for line in f.readlines()}
 
     minganwords = set()
     if path.exists(mingan_path):
-        minganwords = {line.strip() for line in open(mingan_path, 'r', encoding='utf-8').readlines()}
+        with open(mingan_path, 'r', encoding='utf-8') as f:
+            minganwords = {line.strip() for line in f.readlines()}
 
     outstr_list = []
     for word in wl_space_split.split():

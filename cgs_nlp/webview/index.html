@@ -6,6 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="微博用户情感分析系统，提供微博评论情感分析功能">
     <title>微博用户情感分析系统</title>
+    <% if (process.env.NODE_ENV === 'production') { %>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui@2.15.14/lib/theme-chalk/index.css">
+    <script src="https://unpkg.com/vue@2.7.16/dist/vue.min.js"></script>
+    <script src="https://unpkg.com/vue-router@3.6.5/dist/vue-router.min.js"></script>
+    <script src="https://unpkg.com/vuex@3.6.2/dist/vuex.min.js"></script>
+    <script src="https://unpkg.com/axios@0.21.1/dist/axios.min.js"></script>
+    <script src="https://unpkg.com/echarts@4.9.0/dist/echarts.min.js"></script>
+    <script src="https://unpkg.com/element-ui@2.15.14/lib/index.js"></script>
+    <script src="https://unpkg.com/v-charts@1.19.0/lib/index.min.js"></script>
+    <% } %>
   </head>
   <body>
     <div id="app"></div>

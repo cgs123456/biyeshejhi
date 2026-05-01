@@ -190,11 +190,13 @@ class ScrapydWeibo:
 
             stopwords = set()
             if path.exists(stopwords_path):
-                stopwords = {line.strip() for line in open(stopwords_path, 'r', encoding='utf-8').readlines()}
+                with open(stopwords_path, 'r', encoding='utf-8') as f:
+                    stopwords = {line.strip() for line in f.readlines()}
 
             minganwords = set()
             if path.exists(mingan_path):
-                minganwords = {line.strip() for line in open(mingan_path, 'r', encoding='utf-8').readlines()}
+                with open(mingan_path, 'r', encoding='utf-8') as f:
+                    minganwords = {line.strip() for line in f.readlines()}
 
             sentimentslist = []
             # 分批处理避免 OOM，不要一次性把所有内容拼进一个字符串

@@ -58,4 +58,6 @@ urlpatterns = [
 ]
 
 if settings.DEBUG:
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATICFILES_DIRS[0])
+    from django.contrib.staticfiles.views import serve
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT or settings.BASE_DIR)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

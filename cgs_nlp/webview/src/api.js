@@ -4,7 +4,6 @@ export const api = {
   spider: BASE_URL + '/spiderapi/',
   tweets: BASE_URL + '/tweetsapi/',
   wordcloud: BASE_URL + '/wordcloudapi/',
-  quick: BASE_URL + '/getquick/',
   comment: BASE_URL + '/getcomment/',
   scrapyd: BASE_URL + '/scrapydapi/',
   lasted: BASE_URL + '/getlasted/',
