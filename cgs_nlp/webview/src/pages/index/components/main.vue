@@ -94,21 +94,22 @@ export default {
             weiboId: this.weiboId
           }))
           .then((response) => {
-            /* console.log(response.data.data)
-               console.log(response.data.tweets)
-               console.log(response.data.total)
-               console.log(response.data.sentiments) */
             this.$store.state.user = response.data.data
             this.$store.state.usertweets = response.data.tweets
             this.$store.state.total = response.data.total
             this.loading.close()
-            this.$router.push({
-              path: '/user'
-            })
+            if (response.data.data && response.data.data !== '[]' && response.data.data.length > 2) {
+              this.$router.push({
+                path: '/user'
+              })
+            } else {
+              this.$message.error('未找到该用户数据，请检查微博ID是否正确或稍后重试')
+            }
           })
           .catch((error) => {
             this.loading.close()
-            this.$message.error('请求失败，请检查后台是否正常运行！！', error)
+            this.$message.error('请求失败，请检查后台是否正常运行！！')
+            console.error(error)
           })
       } else {
         this.$message.error('输入微博id有误，请检查后重新输入！')

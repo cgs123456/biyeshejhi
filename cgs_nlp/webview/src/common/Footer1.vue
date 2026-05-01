@@ -10,8 +10,8 @@ jackie_chen      1.0   页面底部固定样式
 """
 <template>
   <div class='footer'>
-    <p>Copyright © 2022 Made by cgs.</p>
-    <p>本科毕业设计 常工院</p>
+    <p>Copyright © 2026 Made by cgs.</p>
+    <p>本科毕业设计 湖南工业大学</p>
   </div>
 </template>
 

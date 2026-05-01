@@ -129,7 +129,6 @@ def process_comment_data(wid):
 
 
 class SpiderWeibo:
-    @login_required
     @csrf_exempt
     def SpiderAPI(request):
         res = {}
@@ -153,15 +152,18 @@ class SpiderWeibo:
                 res['tweets'] = serializers.serialize("json", pageData)
                 return HttpResponse(json.dumps(res))
             except UserInfo.DoesNotExist:
-                Target.objects.filter(id=1).update(uid=weibo_id)
-                resp = Target.objects.filter(id=1).first()
+                try:
+                    Target.objects.filter(id=1).update(uid=weibo_id)
+                except Exception:
+                    Target.objects.create(uid=weibo_id)
+                resp = Target.objects.filter(uid=weibo_id).first()
                 if resp:
                     uid = int(resp.uid)
                     # 使用 get_cookie() 解密
                     cookie_val = resp.get_cookie()
                     cookie = {"Cookie": cookie_val}
                     wb = Weibo(uid, cookie)
-                    wb.get_user_info()
+                    wb.get_userInfo()
                     wb.get_weibo_info()
                     TweetsInfo.objects.filter(Content='').delete()
 

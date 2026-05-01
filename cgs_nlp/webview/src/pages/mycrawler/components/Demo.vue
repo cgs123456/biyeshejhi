@@ -117,7 +117,7 @@ export default {
           commentId: wbId
         })
       ).then((response) => {
-        this.$store.state.tempid = wbId
+        this.$store.state.tempId = wbId
         this.$store.state.usercomment = response.data
         this.loading.close()
         this.$router.push({
@@ -141,7 +141,7 @@ export default {
         })
       ).then((response) => {
         console.log(response.data)
-        this.$store.state.tempids = group
+        this.$store.state.tempIds = group
         this.$store.state.group = response.data
         this.loading.close()
         this.$router.push({
@@ -177,10 +177,9 @@ export default {
     }
   },
   mounted () {
-    // 这些方法已被注释，因此暂时注释掉调用
-    // this.getQuick()
-    // this.getLasted()
-    // this.getWeibo()
+    this.getQuick()
+    this.getLasted()
+    this.getWeibo()
   }
 }
 

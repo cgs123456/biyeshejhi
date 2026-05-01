@@ -192,38 +192,29 @@ export default {
             console.log(response.data)
             this.sentiments = parseInt(parseFloat(response.data.sentiments) * 100)
             console.log(this.sentiments)
-            this.chartData.rows = [{
-              '关键词': response.data.keywords[0],
-              '数量': Math.random() * 300
-            },
-            {
-              '关键词': response.data.keywords[1],
-              '数量': Math.random() * 200
-            },
-            {
-              '关键词': response.data.keywords[2],
-              '数量': Math.random() * 100
-            }]
-            this.chartDataf.rows = [{
-              '状态': response.data.tf[0][0],
-              '数值': response.data.tf[0][1]
-            },
-            {
-              '状态': response.data.tf[1][0],
-              '数值': response.data.tf[1][1]
-            },
-            {
-              '状态': response.data.tf[2][0],
-              '数值': response.data.tf[2][1]
-            },
-            {
-              '状态': response.data.tf[3][0],
-              '数值': response.data.tf[3][1]
-            },
-            {
-              '状态': response.data.tf[4][0],
-              '数值': response.data.tf[4][1]
-            }]
+            var keywords = response.data.keywords || []
+            var keywordRows = []
+            for (var k = 0; k < Math.min(3, keywords.length); k++) {
+              keywordRows.push({
+                '关键词': keywords[k],
+                '数量': Math.random() * (300 - k * 100)
+              })
+            }
+            if (keywordRows.length > 0) {
+              this.chartData.rows = keywordRows
+            }
+
+            var tf = response.data.tf || []
+            var tfRows = []
+            for (var t = 0; t < Math.min(5, tf.length); t++) {
+              tfRows.push({
+                '状态': tf[t][0],
+                '数值': tf[t][1]
+              })
+            }
+            if (tfRows.length > 0) {
+              this.chartDataf.rows = tfRows
+            }
           })
       }
     }

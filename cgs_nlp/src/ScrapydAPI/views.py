@@ -26,10 +26,16 @@ class ScrapydWeibo:
     SCRAPYD_URL = getattr(settings, 'SCRAPYD_URL', 'http://localhost:6800')
     MAX_RETRIES = getattr(settings, 'SCRAPYD_MAX_RETRIES', 3)
     
-    @login_required
     @csrf_exempt
     def ScrapydAPI(request):
         if request.method == "POST":
+            # POST 方法需要登录
+            if not request.user.is_authenticated:
+                return JsonResponse({
+                    'success': False,
+                    'message': '请先登录'
+                }, status=401)
+                
             # 安全解析 weiboIds 参数
             weibo_ids_str = request.POST.get("weiboIds", "")
             ids = [x.strip() for x in weibo_ids_str.split(',') if x.strip()]
@@ -96,7 +102,7 @@ class ScrapydWeibo:
             }, status=500)
         
         if request.method == "GET":
-            # Scrapyd 状态检查 - 也添加重试
+            # Scrapyd 状态检查 - 不需要登录，公开访问
             requrl = ScrapydWeibo.SCRAPYD_URL + "/daemonstatus.json"
             try:
                 result = requests.get(requrl, timeout=5)

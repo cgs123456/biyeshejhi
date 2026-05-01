@@ -115,8 +115,8 @@
             ，次数是<strong>{{ this.emtionanaly.bigcount }} </strong>；
             最大的评论次数是<strong>{{ this.emtionanaly.maxcount }} </strong>次
             ，情感值是<strong>{{ this.emtionanaly.maxdate }} </strong>。
-            全部评论中：消极评论内容占比<strong>{{ (this.emtionanaly.count0 / this.emtionanaly.len)*100 }}%</strong>，
-            积极评论内容占比<strong>{{ (this.emtionanaly.count1 / this.emtionanaly.len)*100 }}%</strong>。
+            全部评论中：消极评论内容占比<strong>{{ emtionanaly.len > 0 ? ((emtionanaly.count0 / emtionanaly.len)*100).toFixed(2) : 0 }}%</strong>，
+            积极评论内容占比<strong>{{ emtionanaly.len > 0 ? ((emtionanaly.count1 / emtionanaly.len)*100).toFixed(2) : 0 }}%</strong>。
           </div>
         </div>
       </div>
@@ -180,10 +180,18 @@ export default {
 
     computedObj.groupInfos = function () {
       var res = this.groupInfo
+      if (!res || !Array.isArray(res) || res.length === 0) return []
+      var result = []
       for (var i = 0; i < res.length; i++) {
-        res[i].user = JSON.parse(res[i].user)
+        var item = Object.assign({}, res[i])
+        try {
+          item.user = JSON.parse(item.user)
+        } catch (e) {
+          item.user = []
+        }
+        result.push(item)
       }
-      return res
+      return result
     }
 
     return computedObj
@@ -248,7 +256,7 @@ export default {
       message: '请稍后，正在计算最终情感结果',
       position: 'bottom-right'
     })
-    axios.get(api.group + '?&weiboIds=' + this.$store.state.tempids)
+    axios.get(api.group + '?&weiboIds=' + this.$store.state.tempIds)
       .then(function (response) {
         var res = []
         console.log(response.data)
@@ -292,13 +300,14 @@ export default {
         this.chartData1 = chartData1
 
         var rows = []
-        this.emtionanaly.len = response.data.analy.length
-        this.emtionanaly.smalldate = response.data.analy[0][0]
-        this.emtionanaly.smallcount = response.data.analy[0][1]
-        this.emtionanaly.bigdate = response.data.analy[response.data.analy.length - 1][0]
-        this.emtionanaly.bigcount = response.data.analy[response.data.analy.length - 1][1]
+        if (response.data.analy && response.data.analy.length > 0) {
+          this.emtionanaly.len = response.data.analy.length
+          this.emtionanaly.smalldate = response.data.analy[0][0]
+          this.emtionanaly.smallcount = response.data.analy[0][1]
+          this.emtionanaly.bigdate = response.data.analy[response.data.analy.length - 1][0]
+          this.emtionanaly.bigcount = response.data.analy[response.data.analy.length - 1][1]
 
-        for (let i = 0; i < response.data.analy.length; i++) {
+          for (let i = 0; i < response.data.analy.length; i++) {
           if (response.data.analy[i][1] > this.emtionanaly.maxcount) {
             this.emtionanaly.maxcount = response.data.analy[i][1]
             this.emtionanaly.maxdate = response.data.analy[i][0]
@@ -315,9 +324,10 @@ export default {
             this.emtionanaly.count1++
           }
         }
+        }
 
         var chartData2 = {
-          columns: ['情感值'],
+          columns: ['情感值', '次数'],
           rows: rows
         }
         this.chartData2 = chartData2

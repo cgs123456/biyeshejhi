@@ -1,261 +1,265 @@
 <template>
-  <div class="user">
-    <!-- 调试信息已注释 -->
-    <div class="user-header">
-      <div class="photo-warp">
-        <img :src="this.img[0]" class="wb-img">
-      </div>
-      <div class="wb-name">
-        <span class="name">{{this.userInfo[0].fields.NickName}}</span>
-        <img :src="this.imgsex" class="sex">
-        <div class="wb-brief">{{this.wbbrief}}</div>
-      </div>
+  <div>
+    <div v-if="!hasData" class="no-data">
+      <el-card style="text-align: center; padding: 40px;">
+        <i class="el-icon-warning" style="font-size: 48px; color: #E6A23C;"></i>
+        <p style="font-size: 18px; margin-top: 20px;">暂无用户数据</p>
+        <p style="color: #999;">请先在首页输入微博用户ID进行搜索</p>
+        <el-button type="primary" style="margin-top: 20px;" @click="$router.push('/')">返回首页</el-button>
+      </el-card>
     </div>
-    <el-row :gutter="20">
-      <el-col :span="8">
-        <div class="grid-content bg-purple">
-          <div class="info-left">
-            <el-card class="box-card">
-              <div slot="header" class="clearfix">
-                <span>关注 | 粉丝 | 微博数</span>
-                <el-button style="float: right; padding: 3px 0" type="text"></el-button>
-              </div>
-              <div class="text item item1">
-                {{this.userInfo[0].fields.Num_Follows}}
-              </div>
-              <div class="text item item1">
-                {{this.userInfo[0].fields.Num_Fans}}
-              </div>
-              <div class="text item">
-                {{this.userInfo[0].fields.Num_Tweets}}
-              </div>
-              <div class="text item item2">关注数</div>
-              <div class="text item item2">粉丝数</div>
-              <div class="text item item2">微博数</div>
-            </el-card>
-            <el-card class="box-card-detail">
-              <div slot="header" class="clearfix">
-                <span>基本信息</span>
-              </div>
-              <div class="text item3 item3-txt">
-                微博勋章
-              </div>
-              <div class="text item3-detail">
-                <span v-if="this.srcs"><img v-for="src in this.srcs" :key="src" :src="src" class="wb-xz"></span>
-                <span v-else>该用户没有勋章哦~</span>
-              </div>
-              <div class="text item3 item3-txt">
-                所在地方
-              </div>
-              <div class="text item3-detail">
-                {{this.userInfo[0].fields.Province}} {{this.userInfo[0].fields.City}}
-              </div>
-              <div class="text item3 item3-txt">
-                生日/星座
-              </div>
-              <div class="text item3-detail" v-if="this.userInfo[0].fields.Birthday || this.userInfo[0].fields.Constellation">
-                {{this.userInfo[0].fields.Birthday}} {{this.userInfo[0].fields.Constellation}}
-              </div>
-              <div class="text item3-detail" v-else>
-                无
-              </div>
-              <div class="text item3 item3-txt">
-                性取向
-              </div>
-              <div class="text item3-detail">
-                <span v-if="this.userInfo[0].fields.SexOrientation">{{this.userInfo[0].fields.SexOrientation}}</span>
-                <span v-else>无</span>
-              </div>
-              <div class="text item3 item3-txt">
-                情感状态
-              </div>
-              <div class="text item3-detail">
-                <span v-if="this.userInfo[0].fields.Sentiment">{{this.userInfo[0].fields.Sentiment}}</span>
-                <span v-else>无</span>
-              </div>
-              <div class="text item3 item3-txt">
-                VIP等级
-              </div>
-              <div class="text item3-detail">
-                <span v-if="this.userInfo[0].fields.VIPlevel">{{this.userInfo[0].fields.VIPlevel}}</span>
-                <span v-else>无</span>
-              </div>
-              <div class="text item3 item3-txt">
-                认证
-              </div>
-              <div class="text item3-detail">
-                <span v-if="this.userInfo[0].fields.Verified_reason">{{this.userInfo[0].fields.Verified_reason}}</span>
-                <span v-else>无</span>
-              </div>
-              <div class="text item3 item3-txt">
-                主页
-              </div>
-              <div class="text item3-detail">
-                <a :href='this.userInfo[0].fields.URL' target="_blank" class="index">{{this.userInfo[0].fields.NickName}}</a>
-              </div>
-            </el-card>
-            <el-card class="box-card-detail ciyun">
-              <div slot="header" class="clearfix">
-                <span>词云展示</span>
-                <el-button style="float: right; padding: 3px 0" type="text"></el-button>
-              </div>
-              <div v-if="this.chartData ==='' " style="padding: 0.3125rem;">词云加载中...</div>
-              <div v-else>
-                <ve-wordcloud 
-                  :data="chartData" 
-                  :settings="chartSettings"
-                  @click="handleWordClick">
-                </ve-wordcloud>
-                <!-- 筛选提示 -->
-                <div v-if="filterWord" class="filter-banner">
-                  <el-alert
-                    :title="'当前筛选词: ' + filterWord"
-                    type="info"
-                    :closable="true"
-                    @close="clearFilter">
-                    <span>显示包含该词的微博</span>
-                  </el-alert>
-                </div>
-                <div class="well fz14" style="padding: 0.3125rem;font-size: 13px;margin-bottom: 0;background-color:#f7f9fa !important">
-                  用户@<strong>{{this.userInfo[0].fields.NickName}}</strong>的微博内容中，词云分析结果如上图所示，其中
-                  <strong>{{this.chartData.rows[0].word}}</strong>的频率最高，达到
-                  <strong>{{this.chartData.rows[0].count}}</strong>次，其次是
-                  <strong>{{this.chartData.rows[1].word}}</strong>、
-                  <strong>{{this.chartData.rows[2].word}}</strong>、
-                  <strong>{{this.chartData.rows[3].word}}</strong>分别达到
-                  <strong>{{this.chartData.rows[1].count}}</strong>、
-                  <strong>{{this.chartData.rows[2].count}}</strong>、
-                  <strong>{{this.chartData.rows[3].count}}</strong>次。
-                </div>
-              </div>
-            </el-card>
-            <el-card class="box-card-detail ciyun">
-              <div slot="header" class="clearfix">
-                <span>敏感率</span>
-                <el-button style="float: right; padding: 3px 0" type="text"></el-button>
-              </div>
-              <div v-if="this.minganData === '' || !this.minganData.rows || this.minganData.rows.length === 0" style="padding: 0.3125rem;">敏感率加载中...</div>
-              <div v-else>
-                <ve-bar :data="this.minganData" height="3.4rem" style="margin-top: .3125rem;"></ve-bar>
-                <div class="well fz14" style="padding: 0.3125rem;font-size: 13px;margin-bottom: 0;background-color:#f7f9fa !important">
-                  用户@<strong>{{this.userInfo[0].fields.NickName}}</strong>的微博内容中，敏感占比（当前敏感率只检测暴恐、反动、民生、色情等词汇）
-                  <strong>{{this.minganData.rows[0].敏感*100}}%</strong>,
-                  在<strong>
-                    <span v-if="this.minganData.rows[0].敏感 < 0.25">极低</span>
-                    <span v-else-if="this.minganData.rows[0].敏感 >= 0.25 && this.minganData.rows[0].敏感 < 0.5">低</span>
-                    <span v-else-if="this.minganData.rows[0].敏感 >= 0.5  && this.minganData.rows[0].敏感 < 0.75">高</span>
-                    <span v-else>极高</span>
-                  </strong>敏感范围内。
-                </div>
-              </div>
-            </el-card>
-            <el-card class="box-card-detail ciyun">
-              <div slot="header" class="clearfix">
-                <span>情感分析折线图</span>
-                <el-button style="float: right; padding: 3px 0" type="text"></el-button>
-              </div>
-              <div v-if="this.textchartData ==='' " style="padding: 0.3125rem;">情感分析结果加载中...</div>
-              <div v-else>
-                <ve-line :data="textchartData" style="margin-top: .3125rem;"></ve-line>
-                <div class="well fz14" style="padding: 0.3125rem;font-size: 13px;margin-bottom: 0;background-color:#f7f9fa !important">
-                  用户@<strong>{{this.userInfo[0].fields.NickName}}</strong>的微博内容中，
-                  总微博条数<strong>{{this.userInfo[0].fields.Num_Tweets}}</strong>条，
-                  经过处理得到有效微博条数<strong>{{this.emtionanaly.len}}</strong>条。有效微博情感分析结果如上图所示，
-                  其中消极评论最小值<strong>{{ this.emtionanaly.smalldate }}</strong>
-                  ，次数是<strong>{{ this.emtionanaly.smallcount }}</strong>；
-                  积极评论最大值<strong>{{ this.emtionanaly.bigdate }}</strong>
-                  ，次数是<strong>{{ this.emtionanaly.bigcount }}</strong>；
-                  最大的评论次数是<strong>{{ this.emtionanaly.maxcount }}</strong>次
-                  ，情感值是<strong>{{ this.emtionanaly.maxdate }}</strong>。
-                  全部评论中：消极评论内容占比<strong>{{ (this.emtionanaly.count0 / this.emtionanaly.len)*100 }}%</strong>，
-                  积极评论内容占比<strong>{{ (this.emtionanaly.count1 / this.emtionanaly.len)*100 }}%</strong>。
-                </div>
-              </div>
-            </el-card>
-          </div>
+    <div class="user" v-else>
+      <div class="user-header">
+        <div class="photo-warp">
+          <img :src="img[0]" class="wb-img">
         </div>
-      </el-col>
-      <el-col :span="16">
-        <div class="grid-content bg-purple">
-          <div class="info-right" ref="element">
-            <el-card class="box-card">
-              <div slot="header" class="clearfix">
-                <span>微博内容情感分析</span>
-                <div style="float: right;">
-                  <!-- 日期选择器 -->
-                  <el-date-picker
-                    v-model="dateRange"
-                    type="daterange"
-                    range-separator="至"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
-                    value-format="yyyy-MM-dd"
-                    style="margin-right: 10px; width: 350px;"
-                    @change="handleDateChange">
-                  </el-date-picker>
-                  <el-button type="info" size="mini" icon="el-icon-refresh" @click="resetFilter">重置筛选</el-button>
-                  <el-button type="primary" size="mini" icon="el-icon-download" @click="exportTweets">导出微博数据</el-button>
-                  <el-button type="success" size="mini" icon="el-icon-document" @click="exportUserInfo">导出用户信息</el-button>
-                </div>
-              </div>
-              <div v-for="(tweet, index) in filteredTweets" :key="index" style="height:auto">
-                <div class="tweets-header">
-                  <div class="wb-id">
-                    <span>微博ID：{{tweet.pk}}</span>
-                    <!-- 爬取的微博编号，以目前的系统框架不可跳转到原微博 -->
-                    <el-button style="float: right; padding: 3px 0" type="text">{{tweet.fields.PubTime}} </el-button>
-                  </div>
-                  <div class="wb-content">
-                    <!-- 高亮显示筛选词 -->
-                    <i class="el-icon-edit write"></i>
-                    <span v-if="!filterWord">{{tweet.fields.Content}}</span>
-                    <span v-else v-html="highlightText(tweet.fields.Content)"></span>
-                  </div>
-                  <div class="wb-add">
-                    <span>来自 {{tweet.fields.PubTools}}</span>
-                    <button class="el-button el-button--default el-button--small el-b">点赞{{tweet.fields.Like}}</button>
-                    <button class="el-button el-button--default el-button--small el-b">评论{{tweet.fields.Comment}}</button>
-                    <button class="el-button el-button--default el-button--small el-b">转发{{tweet.fields.Transfer}}</button>
-                  </div>
-                </div>
-                <div class="tweets-footer clearfix">
-                  <div class="footer-left">
-                    关键字：
-                    <span v-if="tweet.fields.sentiments>0.5" style="background:#c2e7b0">
-                      {{tweet.fields.tags}}
-                    </span>
-                    <span v-else style="background:#fbc4c4">
-                      {{tweet.fields.tags}}
-                    </span>
-                    <br>
-                    情感数值：{{tweet.fields.sentiments}}
-                    <br>
-                    词性：{{tweet.fields.pinyin}}
-                  </div>
-                  <div class="footer-right">
-                    <el-progress class="progress" v-if="tweet.fields.sentiments>0.5" type="circle"
-                      :percentage="tweet.fields.sentiments*100" color="#13ce66" :format="format"></el-progress>
-                    <el-progress class="progress" v-else type="circle" :percentage="tweet.fields.sentiments*100"
-                      color="#ff4949" :format="format1"></el-progress>
-                  </div>
-                </div>
-                <hr style="background-color:#50bfff;height:1px;border:none;">
-              </div>
-              <!-- 无结果提示 -->
-              <div v-if="filterWord && filteredTweets.length === 0" style="text-align: center; padding: 30px; color: #999;">
-                <i class="el-icon-search" style="font-size: 40px; margin-bottom: 15px;"></i>
-                <p>没有找到包含"{{filterWord}}"的微博</p>
-                <el-button type="primary" size="small" @click="clearFilter">清除筛选</el-button>
-              </div>
-            </el-card>
-          </div>
+        <div class="wb-name">
+          <span class="name">{{userInfo[0].fields.NickName}}</span>
+          <img :src="imgsex" class="sex">
+          <div class="wb-brief">{{wbbrief}}</div>
         </div>
-      </el-col>
-    </el-row>
-    <div class="page" ref="page">
-      <el-pagination @current-change="handleCurrentChange" :current-page.sync="currentPage" :page-size="this.size"
-        layout="prev, pager, next" :total='this.total'>
-      </el-pagination>
+      </div>
+      <el-row :gutter="20">
+        <el-col :span="8">
+          <div class="grid-content bg-purple">
+            <div class="info-left">
+              <el-card class="box-card">
+                <div slot="header" class="clearfix">
+                  <span>关注 | 粉丝 | 微博数</span>
+                  <el-button style="float: right; padding: 3px 0" type="text"></el-button>
+                </div>
+                <div class="text item item1">
+                  {{userInfo[0].fields.Num_Follows}}
+                </div>
+                <div class="text item item1">
+                  {{userInfo[0].fields.Num_Fans}}
+                </div>
+                <div class="text item">
+                  {{userInfo[0].fields.Num_Tweets}}
+                </div>
+                <div class="text item item2">关注数</div>
+                <div class="text item item2">粉丝数</div>
+                <div class="text item item2">微博数</div>
+              </el-card>
+              <el-card class="box-card-detail">
+                <div slot="header" class="clearfix">
+                  <span>基本信息</span>
+                </div>
+                <div class="text item3 item3-txt">
+                  微博勋章
+                </div>
+                <div class="text item3-detail">
+                  <span v-if="srcs"><img v-for="src in srcs" :key="src" :src="src" class="wb-xz"></span>
+                  <span v-else>该用户没有勋章哦~</span>
+                </div>
+                <div class="text item3 item3-txt">
+                  所在地方
+                </div>
+                <div class="text item3-detail">
+                  {{userInfo[0].fields.Province}} {{userInfo[0].fields.City}}
+                </div>
+                <div class="text item3 item3-txt">
+                  生日/星座
+                </div>
+                <div class="text item3-detail" v-if="userInfo[0].fields.Birthday || userInfo[0].fields.Constellation">
+                  {{userInfo[0].fields.Birthday}} {{userInfo[0].fields.Constellation}}
+                </div>
+                <div class="text item3-detail" v-else>
+                  无
+                </div>
+                <div class="text item3 item3-txt">
+                  性取向
+                </div>
+                <div class="text item3-detail">
+                  <span v-if="userInfo[0].fields.SexOrientation">{{userInfo[0].fields.SexOrientation}}</span>
+                  <span v-else>无</span>
+                </div>
+                <div class="text item3 item3-txt">
+                  情感状态
+                </div>
+                <div class="text item3-detail">
+                  <span v-if="userInfo[0].fields.Sentiment">{{userInfo[0].fields.Sentiment}}</span>
+                  <span v-else>无</span>
+                </div>
+                <div class="text item3 item3-txt">
+                  VIP等级
+                </div>
+                <div class="text item3-detail">
+                  <span v-if="userInfo[0].fields.VIPlevel">{{userInfo[0].fields.VIPlevel}}</span>
+                  <span v-else>无</span>
+                </div>
+                <div class="text item3 item3-txt">
+                  认证
+                </div>
+                <div class="text item3-detail">
+                  <span v-if="userInfo[0].fields.Verified_reason">{{userInfo[0].fields.Verified_reason}}</span>
+                  <span v-else>无</span>
+                </div>
+                <div class="text item3 item3-txt">
+                  主页
+                </div>
+                <div class="text item3-detail">
+                  <a :href='userInfo[0].fields.URL' target="_blank" class="index">{{userInfo[0].fields.NickName}}</a>
+                </div>
+              </el-card>
+              <el-card class="box-card-detail ciyun">
+                <div slot="header" class="clearfix">
+                  <span>词云展示</span>
+                  <el-button style="float: right; padding: 3px 0" type="text"></el-button>
+                </div>
+                <div v-if="chartData ==='' " style="padding: 0.3125rem;">词云加载中...</div>
+                <div v-else>
+                  <ve-wordcloud
+                    :data="chartData"
+                    :settings="chartSettings"
+                    @click="handleWordClick">
+                  </ve-wordcloud>
+                  <div v-if="filterWord" class="filter-banner">
+                    <el-alert
+                      :title="'当前筛选词: ' + filterWord"
+                      type="info"
+                      :closable="true"
+                      @close="clearFilter">
+                      <span>显示包含该词的微博</span>
+                    </el-alert>
+                  </div>
+                  <div class="well fz14" style="padding: 0.3125rem;font-size: 13px;margin-bottom: 0;background-color:#f7f9fa !important">
+                    用户@<strong>{{userInfo[0].fields.NickName}}</strong>的微博内容中，词云分析结果如上图所示，其中
+                    <strong>{{chartData.rows[0] ? chartData.rows[0].word : '无'}}</strong>的频率最高，达到
+                    <strong>{{chartData.rows[0] ? chartData.rows[0].count : 0}}</strong>次，其次是
+                    <strong>{{chartData.rows[1] ? chartData.rows[1].word : ''}}</strong>、
+                    <strong>{{chartData.rows[2] ? chartData.rows[2].word : ''}}</strong>、
+                    <strong>{{chartData.rows[3] ? chartData.rows[3].word : ''}}</strong>分别达到
+                    <strong>{{chartData.rows[1] ? chartData.rows[1].count : 0}}</strong>、
+                    <strong>{{chartData.rows[2] ? chartData.rows[2].count : 0}}</strong>、
+                    <strong>{{chartData.rows[3] ? chartData.rows[3].count : 0}}</strong>次。
+                  </div>
+                </div>
+              </el-card>
+              <el-card class="box-card-detail ciyun">
+                <div slot="header" class="clearfix">
+                  <span>敏感率</span>
+                  <el-button style="float: right; padding: 3px 0" type="text"></el-button>
+                </div>
+                <div v-if="minganData === '' || !minganData.rows || minganData.rows.length === 0" style="padding: 0.3125rem;">敏感率加载中...</div>
+                <div v-else>
+                  <ve-bar :data="minganData" height="3.4rem" style="margin-top: .3125rem;"></ve-bar>
+                  <div class="well fz14" style="padding: 0.3125rem;font-size: 13px;margin-bottom: 0;background-color:#f7f9fa !important">
+                    用户@<strong>{{userInfo[0].fields.NickName}}</strong>的微博内容中，敏感占比（当前敏感率只检测暴恐、反动、民生、色情等词汇）
+                    <strong>{{minganData.rows[0]['敏感'] * 100}}%</strong>,
+                    在<strong>
+                      <span v-if="minganData.rows[0].敏感 < 0.25">极低</span>
+                      <span v-else-if="minganData.rows[0].敏感 >= 0.25 && minganData.rows[0].敏感 < 0.5">低</span>
+                      <span v-else-if="minganData.rows[0].敏感 >= 0.5  && minganData.rows[0].敏感 < 0.75">高</span>
+                      <span v-else>极高</span>
+                    </strong>敏感范围内。
+                  </div>
+                </div>
+              </el-card>
+              <el-card class="box-card-detail ciyun">
+                <div slot="header" class="clearfix">
+                  <span>情感分析折线图</span>
+                  <el-button style="float: right; padding: 3px 0" type="text"></el-button>
+                </div>
+                <div v-if="textchartData ==='' " style="padding: 0.3125rem;">情感分析结果加载中...</div>
+                <div v-else>
+                  <ve-line :data="textchartData" style="margin-top: .3125rem;"></ve-line>
+                  <div class="well fz14" style="padding: 0.3125rem;font-size: 13px;margin-bottom: 0;background-color:#f7f9fa !important">
+                    用户@<strong>{{userInfo[0].fields.NickName}}</strong>的微博内容中，
+                    总微博条数<strong>{{userInfo[0].fields.Num_Tweets}}</strong>条，
+                    经过处理得到有效微博条数<strong>{{emtionanaly.len}}</strong>条。有效微博情感分析结果如上图所示，
+                    其中消极评论最小值<strong>{{ emtionanaly.smalldate }}</strong>
+                    ，次数是<strong>{{ emtionanaly.smallcount }}</strong>；
+                    积极评论最大值<strong>{{ emtionanaly.bigdate }}</strong>
+                    ，次数是<strong>{{ emtionanaly.bigcount }}</strong>；
+                    最大的评论次数是<strong>{{ emtionanaly.maxcount }}</strong>次
+                    ，情感值是<strong>{{ emtionanaly.maxdate }}</strong>。
+                    全部评论中：消极评论内容占比<strong>{{ emtionanaly.len > 0 ? ((emtionanaly.count0 / emtionanaly.len)*100).toFixed(2) : 0 }}%</strong>，
+                    积极评论内容占比<strong>{{ emtionanaly.len > 0 ? ((emtionanaly.count1 / emtionanaly.len)*100).toFixed(2) : 0 }}%</strong>。
+                  </div>
+                </div>
+              </el-card>
+            </div>
+          </div>
+        </el-col>
+        <el-col :span="16">
+          <div class="grid-content bg-purple">
+            <div class="info-right" ref="element">
+              <el-card class="box-card">
+                <div slot="header" class="clearfix">
+                  <span>微博内容情感分析</span>
+                  <div style="float: right;">
+                    <el-date-picker
+                      v-model="dateRange"
+                      type="daterange"
+                      range-separator="至"
+                      start-placeholder="开始日期"
+                      end-placeholder="结束日期"
+                      value-format="yyyy-MM-dd"
+                      style="margin-right: 10px; width: 350px;"
+                      @change="handleDateChange">
+                    </el-date-picker>
+                    <el-button type="info" size="mini" icon="el-icon-refresh" @click="resetFilter">重置筛选</el-button>
+                    <el-button type="primary" size="mini" icon="el-icon-download" @click="exportTweets">导出微博数据</el-button>
+                    <el-button type="success" size="mini" icon="el-icon-document" @click="exportUserInfo">导出用户信息</el-button>
+                  </div>
+                </div>
+                <div v-for="(tweet, index) in filteredTweets" :key="index" style="height:auto">
+                  <div class="tweets-header">
+                    <div class="wb-id">
+                      <span>微博ID：{{tweet.pk}}</span>
+                      <el-button style="float: right; padding: 3px 0" type="text">{{tweet.fields.PubTime}} </el-button>
+                    </div>
+                    <div class="wb-content">
+                      <i class="el-icon-edit write"></i>
+                      <span v-if="!filterWord">{{tweet.fields.Content}}</span>
+                      <span v-else v-html="highlightText(tweet.fields.Content)"></span>
+                    </div>
+                    <div class="wb-add">
+                      <span>来自 {{tweet.fields.PubTools}}</span>
+                      <button class="el-button el-button--default el-button--small el-b">点赞{{tweet.fields.Like}}</button>
+                      <button class="el-button el-button--default el-button--small el-b">评论{{tweet.fields.Comment}}</button>
+                      <button class="el-button el-button--default el-button--small el-b">转发{{tweet.fields.Transfer}}</button>
+                    </div>
+                  </div>
+                  <div class="tweets-footer clearfix">
+                    <div class="footer-left">
+                      关键字：
+                      <span v-if="tweet.fields.sentiments>0.5" style="background:#c2e7b0">
+                        {{tweet.fields.tags}}
+                      </span>
+                      <span v-else style="background:#fbc4c4">
+                        {{tweet.fields.tags}}
+                      </span>
+                      <br>
+                      情感数值：{{tweet.fields.sentiments}}
+                      <br>
+                      词性：{{tweet.fields.pinyin}}
+                    </div>
+                    <div class="footer-right">
+                      <el-progress class="progress" v-if="tweet.fields.sentiments>0.5" type="circle"
+                        :percentage="tweet.fields.sentiments*100" color="#13ce66" :format="format"></el-progress>
+                      <el-progress class="progress" v-else type="circle" :percentage="tweet.fields.sentiments*100"
+                        color="#ff4949" :format="format1"></el-progress>
+                    </div>
+                  </div>
+                  <hr style="background-color:#50bfff;height:1px;border:none;">
+                </div>
+                <div v-if="filterWord && filteredTweets.length === 0" style="text-align: center; padding: 30px; color: #999;">
+                  <i class="el-icon-search" style="font-size: 40px; margin-bottom: 15px;"></i>
+                  <p>没有找到包含"{{filterWord}}"的微博</p>
+                  <el-button type="primary" size="small" @click="clearFilter">清除筛选</el-button>
+                </div>
+              </el-card>
+            </div>
+          </div>
+        </el-col>
+      </el-row>
+      <div class="page" ref="page">
+        <el-pagination @current-change="handleCurrentChange" :current-page.sync="currentPage" :page-size="size"
+          layout="prev, pager, next" :total='total'>
+        </el-pagination>
+      </div>
     </div>
   </div>
 </template>
@@ -285,8 +289,8 @@ export default {
       },
       size: 20,
       currentPage: 1,
-      dateRange: [], // 时间范围选择
-      filterWord: '', // 筛选词
+      dateRange: [],
+      filterWord: '',
       emtionanaly: {
         count0: 0,
         count1: 0,
@@ -306,14 +310,35 @@ export default {
       total: state => state.total,
       mytweets: state => state.usertweets
     }),
+    hasData () {
+      if (!this.user || this.user === '[]' || this.user === 'null') return false
+      try {
+        var parsed = JSON.parse(this.user)
+        return parsed && parsed.length > 0
+      } catch (e) {
+        return false
+      }
+    },
     userInfo: function () {
-      return JSON.parse(this.user)
+      try {
+        return JSON.parse(this.user)
+      } catch (e) {
+        return []
+      }
     },
     userTweets: function () {
-      return JSON.parse(this.mytweets)
+      try {
+        return JSON.parse(this.mytweets)
+      } catch (e) {
+        return []
+      }
     },
     img: function () {
-      return JSON.parse(this.userInfo[0].fields.Image)
+      try {
+        return JSON.parse(this.userInfo[0].fields.Image)
+      } catch (e) {
+        return []
+      }
     },
     imglen: function () {
       return this.img.length
@@ -343,12 +368,9 @@ export default {
       }
     },
     filteredTweets () {
-      // 词云关键词筛选
       if (!this.filterWord) {
-        // 没有筛选词，返回所有
         return this.userTweets
       }
-      // 筛选包含关键词的微博
       return this.userTweets.filter(tweet => {
         if (!tweet.fields.Content) return false
         return tweet.fields.Content.includes(this.filterWord)
@@ -357,57 +379,45 @@ export default {
   },
   methods: {
     handleWordClick (e) {
-      // 词云点击事件
       if (e && e.data && e.data.name) {
         this.filterWord = e.data.name
-        this.$message.success(`已筛选包含"${e.data.name}"的微博`)
+        this.$message.success('已筛选包含"' + e.data.name + '"的微博')
       }
     },
     clearFilter () {
-      // 清除筛选
       this.filterWord = ''
     },
     highlightText (text) {
-      // 高亮显示筛选词
       if (!text || !this.filterWord) return text
-      // 简单的替换，注意要安全使用
-      const regex = new RegExp(`(${this.filterWord})`, 'g')
+      var regex = new RegExp('(' + this.filterWord + ')', 'g')
       return text.replace(regex, '<span style="background-color: #ffeb3b; font-weight: bold; padding: 0 2px; border-radius: 3px;">$1</span>')
     },
     handleDateChange (val) {
-      // 日期选择变化时，重新加载数据
       this.currentPage = 1
       this.loadTweets()
     },
     resetFilter () {
-      // 重置筛选
       this.dateRange = []
       this.filterWord = ''
       this.currentPage = 1
       this.loadTweets()
     },
     loadTweets () {
-      // 加载微博数据，支持时间筛选
-      let params = {
+      var params = {
         weiboId: this.weiboId,
         page: this.currentPage
       }
-      
-      // 如果有日期范围，添加到请求参数
       if (this.dateRange && this.dateRange.length === 2) {
         params.start_date = this.dateRange[0]
         params.end_date = this.dateRange[1]
-        this.$message.info(`正在筛选 ${this.dateRange[0]} 至 ${this.dateRange[1]} 的微博...`)
+        this.$message.info('正在筛选 ' + this.dateRange[0] + ' 至 ' + this.dateRange[1] + ' 的微博...')
       } else {
         this.$message.info('正在加载所有微博...')
       }
-      
       axios.post(api.tweets, Qs.stringify(params))
         .then((response) => {
           this.$store.state.usertweets = response.data.data
-          // 如果有日期筛选，同时重新加载词云等分析数据
           if (this.dateRange && this.dateRange.length === 2) {
-            // 重新加载词云分析
             this.open()
           }
         })
@@ -417,14 +427,12 @@ export default {
         })
     },
     exportTweets () {
-      // 导出微博数据
-      const url = api.export.tweets + '?weiboId=' + this.weiboId
+      var url = api.export.tweets + '?weiboId=' + this.weiboId
       window.open(url, '_blank')
       this.$message.success('正在导出微博数据...')
     },
     exportUserInfo () {
-      // 导出用户信息
-      const url = api.export.user + '?weiboId=' + this.weiboId
+      var url = api.export.user + '?weiboId=' + this.weiboId
       window.open(url, '_blank')
       this.$message.success('正在导出用户信息...')
     },
@@ -449,19 +457,19 @@ export default {
         })
         axios.get(api.wordcloud + '?&weiboId=' + this.weiboId)
           .then((response) => {
-            let res = []
-            for (let i = 0; i < response.data.cipin.length; i++) {
+            var res = []
+            for (var i = 0; i < response.data.cipin.length; i++) {
               res.push({
                 'word': response.data.cipin[i].word,
                 'count': response.data.cipin[i].count
               })
             }
-            let chartData = {
+            var chartData = {
               columns: ['word', 'count'],
               rows: res
             }
             this.chartData = chartData
-            let mingan = {
+            var mingan = {
               columns: ['敏感率', '敏感', '非敏感'],
               rows: [
                 { '敏感率': '敏感率', '敏感': parseFloat(response.data.mingan.toFixed(2)), '非敏感': parseFloat((1 - response.data.mingan).toFixed(2)) }
@@ -469,35 +477,34 @@ export default {
             }
             this.minganData = mingan
 
-            // 情感分析折线图
-            let tu = JSON.parse(response.data.tu)
+            var tu = JSON.parse(response.data.tu)
             this.emtionanaly.len = tu.length
             this.emtionanaly.smalldate = tu[0][0]
             this.emtionanaly.smallcount = tu[0][1]
             this.emtionanaly.bigdate = tu[tu.length - 1][0]
             this.emtionanaly.bigcount = tu[tu.length - 1][1]
-            let tures = []
-            for (let i = 0; i < tu.length; i++) {
-              if (tu[i][1] > this.emtionanaly.maxcount) {
-                this.emtionanaly.maxcount = tu[i][1]
-                this.emtionanaly.maxdate = tu[i][0]
+            var tures = []
+            for (var j = 0; j < tu.length; j++) {
+              if (tu[j][1] > this.emtionanaly.maxcount) {
+                this.emtionanaly.maxcount = tu[j][1]
+                this.emtionanaly.maxdate = tu[j][0]
               }
               tures.push({
-                '情感值': tu[i][0].substring(0, 4),
-                '次数': tu[i][1]
+                '情感值': tu[j][0].substring(0, 4),
+                '次数': tu[j][1]
               })
-              if (tu[i][0] < 0.5) {
+              if (tu[j][0] < 0.5) {
                 this.emtionanaly.count0++
               } else {
                 this.emtionanaly.count1++
               }
             }
-            let textchartData = {
+            var textchartData = {
               columns: ['情感值', '次数'],
               rows: tures
             }
             this.textchartData = textchartData
-            let pl = '消极偏多😭'
+            var pl = '消极偏多😭'
             if (this.emtionanaly.count0 > this.emtionanaly.count1) {
               pl = '消极偏多😭'
             } else {
@@ -519,12 +526,18 @@ export default {
     ...mapMutations(['changeUserTweets'])
   },
   mounted () {
-    this.open()
+    if (this.hasData) {
+      this.open()
+    }
   }
 }
 </script>
 
 <style lang="css" scoped>
+.no-data {
+  padding: 100px 200px;
+}
+
 .user {
   padding: 0 100px 0 100px;
   margin-bottom: 20px;

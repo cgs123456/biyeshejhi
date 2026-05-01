@@ -96,10 +96,10 @@ export default {
             let commentData = response.data
             const ids = this.commentId.split(',')
             if (ids.length === 1 && ids[0] in commentData) {
-              this.$store.state.tempids = ids[0]
+              this.$store.state.tempIds = ids[0]
               this.$store.state.usercomment = commentData[ids[0]]
             } else {
-              this.$store.state.tempids = this.commentId
+              this.$store.state.tempIds = this.commentId
               this.$store.state.usercomment = commentData
             }
             console.log('下面输出data')

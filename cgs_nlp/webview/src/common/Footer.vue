@@ -1,7 +1,7 @@
 <template>
   <el-footer class='footer'>
-    <p>Copyright © 2022 Made by cgs.</p>
-    <p>本科毕业设计 常工院</p>
+    <p>Copyright © 2026 Made by cgs.</p>
+    <p>本科毕业设计 湖南工业大学</p>
   </el-footer>
 </template>
 

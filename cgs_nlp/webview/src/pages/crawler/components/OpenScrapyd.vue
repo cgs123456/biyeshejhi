@@ -147,6 +147,13 @@ export default {
               } else {
                 this.$message.error('启动失败: ' + (response.data.message || '未知错误'))
               }
+            }).catch((error) => {
+              if (error.response && error.response.status === 401) {
+                this.$message.error('请先登录后再启动爬虫')
+              } else {
+                this.$message.error('请求失败，请检查后台是否正常运行')
+              }
+              console.error(error)
             })
           }
         } else {

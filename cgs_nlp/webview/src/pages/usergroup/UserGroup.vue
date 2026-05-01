@@ -16,7 +16,7 @@ import BgColor from 'common/BgSet'
 import GroupMain from './components/GroupMain'
 
 export default {
-  name: 'UserComment',
+  name: 'UserGroup',
   components: {
     CommonHeader,
     GroupMain,

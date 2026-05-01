@@ -10,6 +10,7 @@ export const api = {
   group: BASE_URL + '/getgroup/',
   weibo: BASE_URL + '/getweibo/',
   snownlp: BASE_URL + '/snownlpapi/',
+  quick: BASE_URL + '/getlasted/',
   auth: {
     register: BASE_URL + '/api/auth/register/',
     login: BASE_URL + '/api/auth/login/',
