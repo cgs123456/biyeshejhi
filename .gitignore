@@ -28,11 +28,14 @@ wheels/
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
+**/dbs/
 /media/
 /static/
 
 # Vue / Node
 node_modules/
+development
+test_scrapyd.py
 webview/node_modules/
 webview/dist/
 webview/build/

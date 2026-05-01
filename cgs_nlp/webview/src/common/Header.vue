@@ -19,7 +19,7 @@ jackie_chen      1.0         页面头部样式
       <router-link to="/hot">
         <p>热度排名</p>
       </router-link>
-      <router-link to="/crawler">
+      <router-link to="/Crawler">
         <p>微博持续爬虫</p>
       </router-link>
       <router-link to="/analysis">
