@@ -502,7 +502,6 @@ class SpiderWeibo:
             traceback.print_exc()
             return JsonResponse({'success': False, 'message': str(e)})
 
-    @login_required
     @require_GET
     def export_tweets_csv(request):
         """导出微博数据为 CSV 文件"""
@@ -513,7 +512,7 @@ class SpiderWeibo:
 
             tweets = TweetsInfo.objects.filter(UserInfo_id=weibo_id).order_by('-PubTime')
 
-            response = HttpResponse(content_type='text/csv; charset=utf-8-sig')
+            response = HttpResponse(content_type='text/csv; charset=utf-8')
             response['Content-Disposition'] = f'attachment; filename=weibo_data_{weibo_id}.csv'
 
             writer = csv.writer(response)
@@ -537,7 +536,6 @@ class SpiderWeibo:
             traceback.print_exc()
             return JsonResponse({'success': False, 'message': f'导出失败: {str(e)}'})
 
-    @login_required
     @require_GET
     def export_user_info(request):
         """导出用户信息为 CSV 文件"""
@@ -551,7 +549,7 @@ class SpiderWeibo:
             except UserInfo.DoesNotExist:
                 return JsonResponse({'success': False, 'message': '用户不存在'})
 
-            response = HttpResponse(content_type='text/csv; charset=utf-8-sig')
+            response = HttpResponse(content_type='text/csv; charset=utf-8')
             response['Content-Disposition'] = f'attachment; filename=user_info_{weibo_id}.csv'
 
             writer = csv.writer(response)
