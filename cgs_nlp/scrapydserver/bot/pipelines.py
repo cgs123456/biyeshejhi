@@ -84,9 +84,9 @@ def save_to_django(item, spider):
                     tags = ''
                     pinyin = ''
 
-                tools = ''
+                tools = item_dict.get('pub_tool', '')
                 created_at = item_dict.get('created_at', '')
-                if isinstance(created_at, str) and '来自' in created_at:
+                if not tools and isinstance(created_at, str) and '来自' in created_at:
                     parts = created_at.split('来自')
                     created_at = parts[0].strip()
                     tools = parts[1].strip() if len(parts) > 1 else ''

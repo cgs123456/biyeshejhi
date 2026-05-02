@@ -1,48 +1,85 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.http import require_GET
-# Create your views here.
 from .snownlp import SnowNLP
 from .snownlp import sentiment
-# Create your views here.
-# 正则表达式
 import re
-import requests
 
 
 class SnowNLPWeibo:
     @require_GET
     def SnowNLPAPI(request):
         text = request.GET.get("snownlp", "")
-        
-        if not text:
-            return JsonResponse({'error': 'Missing snownlp parameter'})
-        
-        s = SnowNLP(text)
+
+        if not text or not text.strip():
+            return JsonResponse({
+                'sentiments': 0.5,
+                'keywords': [],
+                'tf': [],
+                'words': [],
+                'sentences': [],
+                'tf2': [],
+                'idf': [],
+            })
+
+        try:
+            s = SnowNLP(text)
+        except Exception:
+            return JsonResponse({
+                'sentiments': 0.5,
+                'keywords': [],
+                'tf': [],
+                'words': [],
+                'sentences': [],
+                'tf2': [],
+                'idf': [],
+            })
+
         result = {}
-        # set无序不重复的数据集
         myset = set()
-        # 正则表达式：表示找到不是汉字也不是字母的字符
         cop = re.compile("[^\u4e00-\u9fa5^a-z^A-Z]")
-        # sub函数替换text中正则表达式内容为空
-        text = cop.sub('', text)
-        for ch in text:
+        clean_text = cop.sub('', text)
+        for ch in clean_text:
             if ch in myset:
                 pass
             else:
                 myset.add(ch)
-        # myset中字符在text文本中出现的次数 ch对应的数字
         for ch in myset:
-            result[ch] = text.count(ch)
-        # .items为字典,对字典第二个元素排列（数字）
+            result[ch] = clean_text.count(ch)
         result = sorted(result.items(), key=lambda x: x[1], reverse=True)
+
+        try:
+            keywords = s.keywords(3)
+        except Exception:
+            keywords = []
+
+        try:
+            words = s.words
+        except Exception:
+            words = []
+
+        try:
+            sentences = s.sentences
+        except Exception:
+            sentences = []
+
+        try:
+            tf2 = s.tf
+        except Exception:
+            tf2 = []
+
+        try:
+            idf = s.idf
+        except Exception:
+            idf = []
+
         mm = {
-            'sentiments': s.sentiments,  # 乐观的概率
-            'keywords': s.keywords(3),  # 句子关键词
+            'sentiments': s.sentiments,
+            'keywords': keywords,
             'tf': result,
-            'words': s.words,  # 进行分词
-            'sentences': s.sentences,  # 断句
-            'tf2': s.tf,  # 词频
-            'idf': s.idf,  # 逆文档频率
+            'words': words,
+            'sentences': sentences,
+            'tf2': tf2,
+            'idf': idf,
         }
         return JsonResponse(mm)

@@ -161,16 +161,13 @@ class ScrapydWeibo:
 
     @require_GET
     def getLasted(request):
-        infos = UserInfo.objects.values('_id', 'Image', 'NickName').order_by('-_id')
-        user = json.dumps(list(infos), cls=DjangoJSONEncoder)
-        targets = Target.objects.values("uid")
-        target = json.dumps(list(targets), cls=DjangoJSONEncoder)
+        infos = list(UserInfo.objects.values('_id', 'Image', 'NickName').order_by('-_id'))
+        targets = list(Target.objects.values("uid"))
         result = {
-            'user': user,
-            'target': target,
-            'count': json.dumps([])
+            'user': infos,
+            'target': targets,
+            'count': []
         }
-        print(result)
         return JsonResponse(result, safe=False)
 
     def getGroupInfo(request):

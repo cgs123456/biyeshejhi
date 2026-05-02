@@ -146,9 +146,12 @@ class WeiboSpider(Spider):
                 tweet_item['_id'] = '{}_{}'.format(user_tweet_id.group(2), user_tweet_id.group(1))
                 create_time_info = tweet_node.xpath('./*span[@class="ct"]/text()')[-1]
                 if "来自" in create_time_info:
-                    tweet_item['created_at'] = time_fix(create_time_info.split('来自')[0].strip())
+                    parts = create_time_info.split('来自')
+                    tweet_item['created_at'] = time_fix(parts[0].strip())
+                    tweet_item['pub_tool'] = parts[1].strip() if len(parts) > 1 else ''
                 else:
                     tweet_item['created_at'] = time_fix(create_time_info.strip())
+                    tweet_item['pub_tool'] = ''
 
                 like_num = tweet_node.xpath('./*a[contains(text(),"赞[")]/text()')[-1]
                 tweet_item['like_num'] = int(re.search('\d+', like_num).group())

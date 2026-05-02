@@ -143,12 +143,27 @@ def process_comment_data(wid):
 
 
 class SpiderWeibo:
+    WEIBO_ID_MIN_LEN = 5
+    WEIBO_ID_MAX_LEN = 30
+
+    @staticmethod
+    def _validate_weibo_id(weibo_id):
+        if not weibo_id or not isinstance(weibo_id, str):
+            return False
+        weibo_id = weibo_id.strip()
+        if len(weibo_id) < SpiderWeibo.WEIBO_ID_MIN_LEN or len(weibo_id) > SpiderWeibo.WEIBO_ID_MAX_LEN:
+            return False
+        return True
+
     @csrf_exempt
     def SpiderAPI(request):
         res = {}
         if request.method == "POST":
             weibo_id = request.POST.get("weiboId")
             page = request.POST.get("page", "1")
+
+            if not SpiderWeibo._validate_weibo_id(weibo_id):
+                return JsonResponse({'error': '微博ID格式不正确，长度应在5-30之间'}, status=400)
 
             try:
                 page = int(page)
@@ -273,37 +288,51 @@ class SpiderWeibo:
 
         if request.method == "GET":
             weibo_id = request.GET.get("weiboId")
+            limit = request.GET.get("limit", "100")
+            try:
+                limit = min(int(limit), 500)
+            except (ValueError, TypeError):
+                limit = 100
+
             TweetsInfo.objects.filter(Content='').delete()
-            all_tweets = TweetsInfo.objects.filter(UserInfo_id=weibo_id)
+            all_tweets = TweetsInfo.objects.filter(UserInfo_id=weibo_id, sentiments='')[:limit]
             tweets_to_update = []
             for e in all_tweets:
                 clean_content = e.Content.replace('转发理由', '').replace('转发内容', '').replace('原始用户', '').replace('转发微博已被删除', '')
-                s = SnowNLP(clean_content)
-                e.tags = str(s.keywords(5))
-                e.pinyin = ''.join([p for w, p in s.tags])
-                e.sentiments = str(s.sentiments)
-                tweets_to_update.append(e)
-            
+                try:
+                    s = SnowNLP(clean_content)
+                    e.tags = str(s.keywords(5))
+                    e.pinyin = ''.join([p for w, p in s.tags])
+                    e.sentiments = str(s.sentiments)
+                    tweets_to_update.append(e)
+                except Exception:
+                    e.sentiments = '0.5'
+                    e.tags = ''
+                    e.pinyin = ''
+                    tweets_to_update.append(e)
+
             if tweets_to_update:
                 TweetsInfo.objects.bulk_update(tweets_to_update, ['tags', 'pinyin', 'sentiments'])
-            return HttpResponse("success")
+            return JsonResponse({'success': True, 'processed': len(tweets_to_update)})
 
         return HttpResponse(json.dumps({'error': 'Invalid request method'}))
 
     @require_GET
     def getLasted(request):
-        infos = UserInfo.objects.values("_id", "Image", "NickName")
-        result = json.dumps(list(infos), cls=DjangoJSONEncoder)
-        return JsonResponse(result, safe=False)
+        infos = list(UserInfo.objects.values("_id", "Image", "NickName"))
+        return JsonResponse(infos, safe=False)
 
     @csrf_exempt
     def getComment(request):
         res = {}
         if request.method == "POST":
             comment_id = request.POST.get("commentId")
-            weibo_ids = comment_id.split(',')
-
+            if not comment_id:
+                return JsonResponse({'error': '缺少commentId参数'}, status=400)
+            weibo_ids = [x.strip() for x in comment_id.split(',') if x.strip()]
             for wid in weibo_ids:
+                if not SpiderWeibo._validate_weibo_id(wid):
+                    continue
                 wid = wid.strip()
                 if not wid:
                     continue
