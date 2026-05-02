@@ -46,7 +46,7 @@ class ScrapydWeibo:
             for id in ids:
                 target = Target()
                 target.uid = id
-                target.cookie = cookies
+                target.set_cookie(cookies)
                 try:
                     Target.objects.get(uid=target.uid)
                     duplicate_count += 1

@@ -110,7 +110,7 @@ def process_comment_data(wid):
     sentimentslist = []
     for c_item in commentinfos:
         if c_item.c_text:
-            m = re.sub(r"[A-Za-z0-9\：\·\—\，\。\\" \\" \? \@]", "", c_item.c_text)
+            m = re.sub(r"[A-Za-z0-9\：\·\—\，\。\u201c \u201d \? \@]", "", c_item.c_text)
             if m:
                 try:
                     s = SnowNLP(m)
@@ -310,10 +310,13 @@ class SpiderWeibo:
                 try:
                     CommentWeiboInfo.objects.get(wb_id=wid)
                 except CommentWeiboInfo.DoesNotExist:
-                    resp = list(Target.objects.values('uid', 'cookie', 'add_time'))
-                    if resp:
-                        uid = int(resp[0]["uid"])
-                        cookie = {"Cookie": resp[0]["cookie"]}
+                    target_obj = Target.objects.filter(uid=wid).first()
+                    if not target_obj:
+                        target_obj = Target.objects.first()
+                    if target_obj:
+                        uid = int(target_obj.uid)
+                        cookie_val = target_obj.get_cookie()
+                        cookie = {"Cookie": cookie_val}
                         wb = Weibo(uid, cookie)
                         wb.get_comment_info(wid)
                 

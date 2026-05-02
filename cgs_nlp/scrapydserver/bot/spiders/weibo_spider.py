@@ -19,38 +19,30 @@ class WeiboSpider(Spider):
 
     def start_requests(self):
         import os
-        import pymysql.cursors
+        import django
         
-        # 使用环境变量配置
-        db_host = os.environ.get('DB_HOST', 'localhost')
-        db_port = int(os.environ.get('DB_PORT', 3306))
-        db_name = os.environ.get('DB_NAME', 'weibo_nlp')
-        db_user = os.environ.get('DB_USER', 'root')
-        db_password = os.environ.get('DB_PASSWORD', '')
+        os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'cgs_nlp.settings')
+        scrapydserver_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        cgs_nlp_dir = os.path.dirname(scrapydserver_dir)
+        import sys
+        sys.path.insert(0, scrapydserver_dir)
+        sys.path.insert(0, cgs_nlp_dir)
+        django.setup()
         
-        # 连接数据库
-        connect = pymysql.connect(
-            host=db_host,
-            port=db_port,
-            db=db_name,
-            user=db_user,
-            passwd=db_password,
-            charset='utf8mb4',
-            use_unicode=True)
-        # 通过cursor执行增删查改
-        cursor = connect.cursor()
-        cursor.execute("""SELECT uid from scrapydapi_target WHERE isScrapy=0""")
-        uids = cursor.fetchall()
-        start_uids = uids
-        print('uid:::', uids)
+        from SpiderAPI.models import Target
+        from SpiderAPI.crypto_utils import SimpleEncryption
+        
+        targets = Target.objects.all()
+        start_uids = []
+        for t in targets:
+            try:
+                start_uids.append(str(t.uid))
+            except Exception:
+                continue
+        
+        print('uid:::', start_uids)
         for uid in start_uids:
-            # 使用参数化查询，防止 SQL 注入
-            cursor.execute("""UPDATE scrapydapi_target set isScrapy=1 WHERE uid=%s""", uid)
-            connect.commit()
-            # 返回一个迭代器 持续爬取
             yield Request(url="https://weibo.cn/%s/info" % uid, callback=self.parse_information)
-        cursor.close()
-        connect.close()
 
     def parse_information(self, response):
         """ 抓取个人信息 """
