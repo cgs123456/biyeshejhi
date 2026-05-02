@@ -59,9 +59,14 @@ export default {
     /* 获取用户头像名字基本信息 */
     getQuick () {
       axios.get(api.quick).then((response) => {
-        let res = JSON.parse(response.data)
+        let res = response.data.user
+        if (typeof res === 'string') {
+          res = JSON.parse(res)
+        }
         for (let i = 0; i < res.length; i++) {
-          res[i].Image = JSON.parse(res[i].Image)[0]
+          if (typeof res[i].Image === 'string') {
+            try { res[i].Image = JSON.parse(res[i].Image)[0] } catch (e) { res[i].Image = res[i].Image }
+          }
         }
         this.infos = res
       })
@@ -69,9 +74,10 @@ export default {
     /* 建立用户分组 */
     getLasted () {
       axios.get(api.lasted).then((response) => {
-        let res = JSON.parse(response.data.user) /* ID image name */
-        let group = JSON.parse(response.data.target) /* uid（多个ID） group */
-        let count = JSON.parse(response.data.count)/* [（组号， 个数）] */
+        let data = response.data
+        let res = typeof data.user === 'string' ? JSON.parse(data.user) : data.user
+        let group = typeof data.target === 'string' ? JSON.parse(data.target) : data.target
+        let count = typeof data.count === 'string' ? JSON.parse(data.count) : data.count
         let newres = []
         for (let i = 0; i < res.length; i++) {
           for (let j = 0; j < group.length; j++) {
@@ -99,9 +105,16 @@ export default {
     /* 建立单条微博分组 */
     getWeibo () {
       axios.get(api.weibo).then((response) => {
-        let res = JSON.parse(response.data)
-        for (let i = 0; i < res.length; i++) {
-          res[i].wb_text = res[i].wb_text.replace('data-hide=""', 'target="_blank"').replace(/1rem/g, '.3rem')
+        let res = response.data
+        if (typeof res === 'string') {
+          try { res = JSON.parse(res) } catch (e) { res = [] }
+        }
+        if (Array.isArray(res)) {
+          for (let i = 0; i < res.length; i++) {
+            if (res[i].wb_text) {
+              res[i].wb_text = res[i].wb_text.replace('data-hide=""', 'target="_blank"').replace(/1rem/g, '.3rem')
+            }
+          }
         }
         this.infos2 = res
       })
@@ -118,7 +131,14 @@ export default {
         })
       ).then((response) => {
         this.$store.state.tempId = wbId
-        this.$store.state.usercomment = response.data
+        var commentData = response.data
+        if (typeof commentData === 'object' && commentData[wbId]) {
+          this.$store.state.usercomment = commentData[wbId]
+          this.$store.state.tempIds = wbId
+        } else {
+          this.$store.state.usercomment = commentData
+          this.$store.state.tempIds = wbId
+        }
         this.loading.close()
         this.$router.push({
           path: '/usercomment'

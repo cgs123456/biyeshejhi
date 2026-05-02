@@ -167,6 +167,13 @@ export default {
         var parsed = typeof this.usercomment === 'string' ? JSON.parse(this.usercomment) : this.usercomment
         if (Array.isArray(parsed)) return parsed
         if (typeof parsed === 'object' && parsed !== null) {
+          if (parsed.data) {
+            var dataStr = typeof parsed.data === 'string' ? parsed.data : JSON.stringify(parsed.data)
+            try {
+              var dataParsed = JSON.parse(dataStr)
+              if (Array.isArray(dataParsed)) return dataParsed
+            } catch (e) {}
+          }
           var result = []
           for (var key in parsed) {
             if (parsed.hasOwnProperty(key) && Array.isArray(parsed[key])) {
@@ -231,14 +238,22 @@ export default {
         message: '正在计算评论情感分析结果',
         position: 'bottom-right'
       })
-      axios.get(api.comment + '?weiboIds=' + ids)
+      axios.get(api.comment + '?commentId=' + ids)
         .then(function (response) {
+          var data = response.data
+          if (typeof data === 'string') {
+            try { data = JSON.parse(data) } catch (e) { return }
+          }
+          var firstKey = Object.keys(data)[0]
+          if (firstKey && data[firstKey] && (data[firstKey].cipin || data[firstKey].mingan || data[firstKey].analy)) {
+            data = data[firstKey]
+          }
           var res = []
-          if (response.data.cipin) {
-            for (var i = 0; i < response.data.cipin.length; i++) {
+          if (data.cipin) {
+            for (var i = 0; i < data.cipin.length; i++) {
               res.push({
-                'word': response.data.cipin[i].word,
-                'count': response.data.cipin[i].count
+                'word': data.cipin[i].word,
+                'count': data.cipin[i].count
               })
             }
           }
@@ -249,8 +264,8 @@ export default {
             }
           }
 
-          if (response.data.mingan !== undefined) {
-            var minganValue = parseFloat(response.data.mingan)
+          if (data.mingan !== undefined) {
+            var minganValue = parseFloat(data.mingan)
             this.minganData = {
               columns: ['敏感率', '敏感', '非敏感'],
               rows: [
@@ -259,24 +274,24 @@ export default {
             }
           }
 
-          if (response.data.analy && response.data.analy.length > 0) {
-            this.emtionanaly.len = response.data.analy.length
-            this.emtionanaly.smalldate = response.data.analy[0][0]
-            this.emtionanaly.smallcount = response.data.analy[0][1]
-            this.emtionanaly.bigdate = response.data.analy[response.data.analy.length - 1][0]
-            this.emtionanaly.bigcount = response.data.analy[response.data.analy.length - 1][1]
+          if (data.analy && data.analy.length > 0) {
+            this.emtionanaly.len = data.analy.length
+            this.emtionanaly.smalldate = data.analy[0][0]
+            this.emtionanaly.smallcount = data.analy[0][1]
+            this.emtionanaly.bigdate = data.analy[data.analy.length - 1][0]
+            this.emtionanaly.bigcount = data.analy[data.analy.length - 1][1]
 
             var rows = []
-            for (var j = 0; j < response.data.analy.length; j++) {
-              if (response.data.analy[j][1] > this.emtionanaly.maxcount) {
-                this.emtionanaly.maxcount = response.data.analy[j][1]
-                this.emtionanaly.maxdate = response.data.analy[j][0]
+            for (var j = 0; j < data.analy.length; j++) {
+              if (data.analy[j][1] > this.emtionanaly.maxcount) {
+                this.emtionanaly.maxcount = data.analy[j][1]
+                this.emtionanaly.maxdate = data.analy[j][0]
               }
               rows.push({
-                '情感值': response.data.analy[j][0],
-                '次数': response.data.analy[j][1]
+                '情感值': data.analy[j][0],
+                '次数': data.analy[j][1]
               })
-              if (response.data.analy[j][0] < 0.5) {
+              if (data.analy[j][0] < 0.5) {
                 this.emtionanaly.count0++
               } else {
                 this.emtionanaly.count1++

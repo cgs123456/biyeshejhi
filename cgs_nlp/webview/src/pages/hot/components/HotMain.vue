@@ -107,9 +107,9 @@ export default {
   },
   methods: {
     async fetchHotTweets () {
-        this.loading = true
-        try {
-            const response = await axios.get(api.hot + '?limit=' + this.limit)
+      this.loading = true
+      try {
+        const response = await axios.get(api.hot + '?limit=' + this.limit)
         if (response.data.success) {
           this.tweets = response.data.tweets
           this.$notify.success({

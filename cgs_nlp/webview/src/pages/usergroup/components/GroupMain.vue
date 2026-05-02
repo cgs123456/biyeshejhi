@@ -5,7 +5,7 @@
         <span class="title">持续爬虫用户情感分析结果</span>
         <el-button style="float: right; padding: 3px 0" type="text"></el-button>
       </div>
-      
+
       <!-- 舆情预警横幅 -->
       <el-alert
         v-if="warning"
@@ -16,7 +16,7 @@
         show-icon
         class="warning-alert">
       </el-alert>
-      
+
       <div class="user">
         <div class="text item" v-for="(o, index) in groupInfos" :key="index" :title="infos(o.user[0].fields)" @click="goInWb(o.user[0].pk)">
           <div class="m_l">
@@ -260,7 +260,7 @@ export default {
       .then(function (response) {
         var res = []
         console.log(response.data)
-        
+
         // ================== 舆情预警处理 ==================
         if (response.data.warning) {
           this.warning = true
@@ -276,7 +276,7 @@ export default {
         } else {
           this.warning = false
         }
-        
+
         for (var i = 0; i < response.data.cipin.length; i++) {
           res.push({
             'word': response.data.cipin[i].word,
@@ -308,22 +308,22 @@ export default {
           this.emtionanaly.bigcount = response.data.analy[response.data.analy.length - 1][1]
 
           for (let i = 0; i < response.data.analy.length; i++) {
-          if (response.data.analy[i][1] > this.emtionanaly.maxcount) {
-            this.emtionanaly.maxcount = response.data.analy[i][1]
-            this.emtionanaly.maxdate = response.data.analy[i][0]
-          }
+            if (response.data.analy[i][1] > this.emtionanaly.maxcount) {
+              this.emtionanaly.maxcount = response.data.analy[i][1]
+              this.emtionanaly.maxdate = response.data.analy[i][0]
+            }
 
-          rows.push({
-            '情感值': response.data.analy[i][0],
-            '次数': response.data.analy[i][1]
-          })
+            rows.push({
+              '情感值': response.data.analy[i][0],
+              '次数': response.data.analy[i][1]
+            })
 
-          if (response.data.analy[i][0] < 0.5) {
-            this.emtionanaly.count0++
-          } else {
-            this.emtionanaly.count1++
+            if (response.data.analy[i][0] < 0.5) {
+              this.emtionanaly.count0++
+            } else {
+              this.emtionanaly.count1++
+            }
           }
-        }
         }
 
         var chartData2 = {

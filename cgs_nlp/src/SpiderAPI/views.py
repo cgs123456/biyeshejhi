@@ -107,6 +107,24 @@ def process_comment_data(wid):
     res['mingan'] = mingan_ratio
     res['cipin'] = cipin
 
+    sentimentslist = []
+    for c_item in commentinfos:
+        if c_item.c_text:
+            m = re.sub(r"[A-Za-z0-9\：\·\—\，\。\\" \\" \? \@]", "", c_item.c_text)
+            if m:
+                try:
+                    s = SnowNLP(m)
+                    sentimentslist.append(s.sentiments)
+                except Exception:
+                    pass
+
+    c0 = Counter()
+    for word0 in sentimentslist:
+        c0[word0] += 1
+    li0 = list(c0.items())
+    li0.sort(key=lambda x: x[0])
+    res['analy'] = li0
+
     if start and end and mid.total_seconds() > 0:
         for c in commentinfos:
             for i in range(10):
@@ -116,10 +134,6 @@ def process_comment_data(wid):
                     counts[i] += 1
                     break
 
-    # 查找最大值的位置，将最大值作为最后一个点（用于图表）
-        max_count = max(counts) if counts else 0
-        max_index = counts.index(max_count) if max_count > 0 else 0
-        
         res['commentqushi'] = [
             {'date': json.dumps(start + (i + 1) * mid, cls=JsonCustomEncoder),
              'count': counts[i]}
@@ -220,6 +234,7 @@ class SpiderWeibo:
 
         return HttpResponse(json.dumps(res))
 
+    @csrf_exempt
     def TweetsAPI(request):
         ret = {}
         if request.method == "POST":
@@ -281,6 +296,7 @@ class SpiderWeibo:
         result = json.dumps(list(infos), cls=DjangoJSONEncoder)
         return JsonResponse(result, safe=False)
 
+    @csrf_exempt
     def getComment(request):
         res = {}
         if request.method == "POST":
@@ -306,30 +322,20 @@ class SpiderWeibo:
 
         if request.method == "GET":
             comment_id = request.GET.get("commentId")
-            CommentInfo.objects.filter(c_text='').delete()
-            infos = CommentInfo.objects.filter(CommentWeiboInfo_id=comment_id).values('c_text')
-            sentimentslist = []
-
-            for info in infos:
-                m = re.sub(r"[A-Za-z0-9\：\·\—\，\。\“ \” \? \@]", "", info['c_text'])
-                if m:
-                    s = SnowNLP(m)
-                    sentimentslist.append(s.sentiments)
-
-            c = Counter()
-            for word in sentimentslist:
-                c[word] += 1
-            li = list(c.items())
-            li.sort(key=lambda x: x[0])
-            return HttpResponse(json.dumps(li))
+            if comment_id:
+                weibo_ids = [x.strip() for x in comment_id.split(',') if x.strip()]
+                res = {}
+                for wid in weibo_ids:
+                    res[wid] = process_comment_data(wid)
+                return HttpResponse(json.dumps(res))
+            return HttpResponse(json.dumps({'error': 'Missing commentId'}))
 
         return HttpResponse(json.dumps({'error': 'Invalid request method'}))
 
     @require_GET
     def getWeibo(request):
-        infos = CommentWeiboInfo.objects.values("wb_id", "wb_userId", "wb_userName", "wb_user_profile_image_url", "wb_text")
-        result = json.dumps(list(infos), cls=DjangoJSONEncoder)
-        return JsonResponse(result, safe=False)
+        infos = list(CommentWeiboInfo.objects.values("wb_id", "wb_userId", "wb_userName", "wb_user_profile_image_url", "wb_text"))
+        return JsonResponse(infos, safe=False)
 
     @csrf_exempt
     @require_POST
