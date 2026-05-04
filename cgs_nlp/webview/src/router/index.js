@@ -50,6 +50,16 @@ export default new Router({
       path: '/hot',
       name: 'Hot',
       component: () => import('@/pages/hot/Hot')
+    },
+    {
+      path: '/compare',
+      name: 'Compare',
+      component: () => import('@/pages/compare/Compare')
+    },
+    {
+      path: '/about',
+      name: 'About',
+      component: () => import('@/pages/about/About')
     }
 
   ]

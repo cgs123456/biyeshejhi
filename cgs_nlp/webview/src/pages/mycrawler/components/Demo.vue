@@ -1,8 +1,9 @@
 <template>
   <el-timeline class="mytimestamp">
     <el-timeline-item timestamp="个人微博用户" color="#E6A23C" placement="top">
-      <el-card>
-        <ul class="img-style">
+      <el-card v-loading="loadingQuick">
+        <el-empty v-if="!loadingQuick && (!infos || !infos.length)" description="暂无用户数据"></el-empty>
+        <ul class="img-style" v-else>
           <li v-for="(info, index) in infos" :key="index">
             <div class="photo-warp">
               <img :src="info.Image" class="wb-img" @click="goInWb(info._id)" :title="info.NickName">
@@ -12,30 +13,36 @@
       </el-card>
     </el-timeline-item>
     <el-timeline-item timestamp="持续爬虫用户" color="#67C23A" placement="top">
-      <el-card>
-        <ul v-for="(info1, index) in infos1" :key="index" class="ulinfos1" @click="goInGroup(info1.info)">
-          组{{index}}
-          <li v-for="(info2, i) in infos1[index].info" :key="i">
-            <img :src="info2.Image" :title="info2.NickName">
-          </li>
-        </ul>
+      <el-card v-loading="loadingLasted">
+        <el-empty v-if="!loadingLasted && (!infos1 || !infos1.length)" description="暂无分组数据"></el-empty>
+        <template v-else>
+          <ul v-for="(info1, index) in infos1" :key="index" class="ulinfos1" @click="goInGroup(info1.info)">
+            组{{index}}
+            <li v-for="(info2, i) in infos1[index].info" :key="i">
+              <img :src="info2.Image" :title="info2.NickName">
+            </li>
+          </ul>
+        </template>
       </el-card>
     </el-timeline-item>
     <el-timeline-item timestamp="单条微博" color="#F56C6C" placement="top">
-      <el-card>
-        <div v-for="(info, index) in infos2" :key="index" class="outer" @click="goInComment(info.wb_id)">
-          <div class="m_l">
-            <img :src="info.wb_user_profile_image_url">
-          </div>
-          <div class="m_r">
-            <p>
-              <a class="mscrame" @click="website(info.wb_userId)" href="javascript:;" target="_blank">{{info.wb_userName}}</a>
-            </p>
-            <div class="mwbcontext">
-              <p>{{ info.wb_text }}</p>
+      <el-card v-loading="loadingWeibo">
+        <el-empty v-if="!loadingWeibo && (!infos2 || !infos2.length)" description="暂无微博数据"></el-empty>
+        <template v-else>
+          <div v-for="(info, index) in infos2" :key="index" class="outer" @click="goInComment(info.wb_id)">
+            <div class="m_l">
+              <img :src="info.wb_user_profile_image_url">
+            </div>
+            <div class="m_r">
+              <p>
+                <a class="mscrame" @click="website(info.wb_userId)" href="javascript:;" target="_blank">{{info.wb_userName}}</a>
+              </p>
+              <div class="mwbcontext">
+                <p>{{ info.wb_text }}</p>
+              </div>
             </div>
           </div>
-        </div>
+        </template>
       </el-card>
     </el-timeline-item>
   </el-timeline>
@@ -50,6 +57,9 @@ export default {
   data () {
     return {
       loading: '',
+      loadingQuick: true,
+      loadingLasted: true,
+      loadingWeibo: true,
       infos: '',
       infos1: '',
       infos2: ''
@@ -58,6 +68,7 @@ export default {
   methods: {
     /* 获取用户头像名字基本信息 */
     getQuick () {
+      this.loadingQuick = true
       axios.get(api.quick).then((response) => {
         let res = response.data.user
         if (typeof res === 'string') {
@@ -69,10 +80,11 @@ export default {
           }
         }
         this.infos = res
-      })
+      }).finally(() => { this.loadingQuick = false })
     },
     /* 建立用户分组 */
     getLasted () {
+      this.loadingLasted = true
       axios.get(api.lasted).then((response) => {
         let data = response.data
         let res = typeof data.user === 'string' ? JSON.parse(data.user) : data.user
@@ -100,10 +112,11 @@ export default {
           }
         }
         this.infos1 = newres
-      })
+      }).finally(() => { this.loadingLasted = false })
     },
     /* 建立单条微博分组 */
     getWeibo () {
+      this.loadingWeibo = true
       axios.get(api.weibo).then((response) => {
         let res = response.data
         if (typeof res === 'string') {
@@ -117,7 +130,7 @@ export default {
           }
         }
         this.infos2 = res
-      })
+      }).finally(() => { this.loadingWeibo = false })
     },
     website: function (userId) {
       window.open('https://weibo.com/' + userId)

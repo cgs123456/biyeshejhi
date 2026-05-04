@@ -28,6 +28,12 @@ jackie_chen      1.0         页面头部样式
       <router-link to="/mycrawler">
         <p>已爬虫用户和微博</p>
       </router-link>
+      <router-link to="/compare">
+        <p>模型对比</p>
+      </router-link>
+      <router-link to="/about">
+        <p>系统架构</p>
+      </router-link>
     </div>
     <div class="user-area">
       <template v-if="isLoggedIn">

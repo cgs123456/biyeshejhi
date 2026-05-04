@@ -21,7 +21,10 @@
             <div slot="header" class="clearfix">
               <span>评论词云</span>
             </div>
-            <div v-if="chartData === ''" style="padding: 10px;">词云加载中...</div>
+            <div v-if="chartData === ''" v-loading="true" style="min-height: 200px;"></div>
+            <div v-else-if="!chartData.rows || chartData.rows.length === 0">
+              <el-empty description="暂无词云数据"></el-empty>
+            </div>
             <div v-else>
               <ve-wordcloud :data="chartData" :settings="chartSettings" @click="handleWordClick"></ve-wordcloud>
               <div v-if="filterWord" class="filter-banner">
@@ -43,7 +46,10 @@
             <div slot="header" class="clearfix">
               <span>敏感率</span>
             </div>
-            <div v-if="minganData === ''" style="padding: 10px;">敏感率加载中...</div>
+            <div v-if="minganData === ''" v-loading="true" style="min-height: 200px;"></div>
+            <div v-else-if="!minganData.rows || minganData.rows.length === 0">
+              <el-empty description="暂无敏感率数据"></el-empty>
+            </div>
             <div v-else>
               <ve-bar :data="minganData" height="3.4rem"></ve-bar>
               <div class="well fz14" style="padding: 10px;font-size: 13px;margin-bottom: 0;background-color:#f7f9fa !important">
@@ -56,7 +62,10 @@
             <div slot="header" class="clearfix">
               <span>情感分析折线图</span>
             </div>
-            <div v-if="textchartData === ''" style="padding: 10px;">情感分析结果加载中...</div>
+            <div v-if="textchartData === ''" v-loading="true" style="min-height: 200px;"></div>
+            <div v-else-if="!textchartData.rows || textchartData.rows.length === 0">
+              <el-empty description="暂无情感分析数据"></el-empty>
+            </div>
             <div v-else>
               <ve-line :data="textchartData" style="margin-top: 10px;"></ve-line>
               <div class="well fz14" style="padding: 10px;font-size: 13px;margin-bottom: 0;background-color:#f7f9fa !important">

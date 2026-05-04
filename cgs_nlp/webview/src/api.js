@@ -25,5 +25,6 @@ export const api = {
     tweets: BASE_URL + '/api/export/tweets/',
     user: BASE_URL + '/api/export/user/'
   },
-  hot: BASE_URL + '/api/hot/'
+  hot: BASE_URL + '/api/hot/',
+  compare: BASE_URL + '/api/model/compare/'
 }

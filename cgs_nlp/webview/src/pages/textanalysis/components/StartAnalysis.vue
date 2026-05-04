@@ -68,7 +68,7 @@ jackie_chen      1.0     文本情感分析
       <el-input class="text" type="textarea" :rows="10" placeholder="请输入内容" v-model="textarea">
       </el-input>
     </div>
-    <div class="show">
+    <div class="show" v-loading="loadingAnalysis">
       <el-row :gutter="20">
         <el-col :span="8">
           <div class="grid-content">
@@ -113,6 +113,7 @@ export default {
     return {
       textarea: '',
       sentiments: '',
+      loadingAnalysis: false,
       chartData: {
         columns: ['关键词', '数量'],
         rows: [{
@@ -187,6 +188,7 @@ export default {
   watch: {
     'textarea': function (newval) {
       if (newval !== '') {
+        this.loadingAnalysis = true
         axios.get(api.snownlp + '?&snownlp=' + newval)
           .then((response) => {
             console.log(response.data)
@@ -216,6 +218,7 @@ export default {
               this.chartDataf.rows = tfRows
             }
           })
+          .finally(() => { this.loadingAnalysis = false })
       }
     }
   }

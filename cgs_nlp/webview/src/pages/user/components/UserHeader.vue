@@ -107,7 +107,10 @@
                   <span>词云展示</span>
                   <el-button style="float: right; padding: 3px 0" type="text"></el-button>
                 </div>
-                <div v-if="chartData ==='' " style="padding: 0.3125rem;">词云加载中...</div>
+                <div v-if="chartData === ''" v-loading="true" style="min-height: 200px;"></div>
+                <div v-else-if="!chartData.rows || chartData.rows.length === 0">
+                  <el-empty description="暂无词云数据"></el-empty>
+                </div>
                 <div v-else>
                   <ve-wordcloud
                     :data="chartData"
@@ -141,7 +144,9 @@
                   <span>敏感率</span>
                   <el-button style="float: right; padding: 3px 0" type="text"></el-button>
                 </div>
-                <div v-if="minganData === '' || !minganData.rows || minganData.rows.length === 0" style="padding: 0.3125rem;">敏感率加载中...</div>
+                <div v-if="minganData === '' || !minganData.rows || minganData.rows.length === 0" v-loading="minganData === ''" style="min-height: 200px;">
+                  <el-empty v-if="minganData !== '' && (!minganData.rows || minganData.rows.length === 0)" description="暂无敏感率数据"></el-empty>
+                </div>
                 <div v-else>
                   <ve-bar :data="minganData" height="3.4rem" style="margin-top: .3125rem;"></ve-bar>
                   <div class="well fz14" style="padding: 0.3125rem;font-size: 13px;margin-bottom: 0;background-color:#f7f9fa !important">
@@ -161,7 +166,10 @@
                   <span>情感分析折线图</span>
                   <el-button style="float: right; padding: 3px 0" type="text"></el-button>
                 </div>
-                <div v-if="textchartData ==='' " style="padding: 0.3125rem;">情感分析结果加载中...</div>
+                <div v-if="textchartData ===''" v-loading="true" style="min-height: 200px;"></div>
+                <div v-else-if="!textchartData.rows || textchartData.rows.length === 0">
+                  <el-empty description="暂无情感分析数据"></el-empty>
+                </div>
                 <div v-else>
                   <ve-line :data="textchartData" style="margin-top: .3125rem;"></ve-line>
                   <div class="well fz14" style="padding: 0.3125rem;font-size: 13px;margin-bottom: 0;background-color:#f7f9fa !important">

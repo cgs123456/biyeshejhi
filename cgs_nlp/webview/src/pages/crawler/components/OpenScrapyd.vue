@@ -2,7 +2,7 @@
   <div class="outer">
     <el-row :gutter="20">
       <el-col :span="10">
-        <div class="grid-content grid-left">
+        <div class="grid-content grid-left" v-loading="loadingStatus">
           <div class="logo">
             <svg class="svg" width="72px" height="72px" viewBox="0 0 64 64" version="1.1">
               <title>Icon</title>
@@ -86,6 +86,7 @@ export default {
   name: 'OpenScrapyd',
   data () {
     return {
+      loadingStatus: true,
       currentDate: new Date(),
       scrapyd: {
         status: '❌',
@@ -163,6 +164,7 @@ export default {
       })
     },
     getScrapyd () {
+      this.loadingStatus = true
       axios.get(api.scrapyd)
         .then((response) => {
           console.log(response.data)
@@ -184,6 +186,7 @@ export default {
           this.$message.error('请检查 Scrapyd 服务器是否正常运行！！')
           console.error(error)
         })
+        .finally(() => { this.loadingStatus = false })
     },
     resetForm (formName) {
       this.$refs[formName].resetFields()

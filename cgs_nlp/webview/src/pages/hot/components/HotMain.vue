@@ -60,12 +60,11 @@ jackie_chen      1.0         热度排名主页面
       <el-button type="primary" @click="fetchHotTweets" :loading="loading">刷新</el-button>
     </div>
     <div class="hot-list">
-      <el-card class="box-card">
+      <el-card class="box-card" v-loading="loading">
         <div slot="header" class="clearfix">
           <span>热门微博 TOP{{limit}}</span>
         </div>
-        <div v-if="loading" class="loading">加载中...</div>
-        <div v-else-if="!tweets.length" class="empty">暂无数据</div>
+        <el-empty v-if="!loading && !tweets.length" description="暂无热度数据"></el-empty>
         <div v-else>
           <div v-for="(tweet, index) in tweets" :key="tweet.id" class="tweet-item">
             <div class="rank-badge" :class="'rank-' + (index + 1)">{{index + 1}}</div>

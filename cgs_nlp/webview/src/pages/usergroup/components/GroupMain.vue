@@ -72,7 +72,10 @@
       </div>
       <div class="usermain">
         <p>词云分析</p>
-        <span v-if="chartData === null">正在疯狂计算中...</span>
+        <div v-if="chartData === null" v-loading="true" style="min-height: 200px;"></div>
+        <div v-else-if="!chartData.rows || chartData.rows.length === 0">
+          <el-empty description="暂无词云数据"></el-empty>
+        </div>
         <div v-else>
           <ve-wordcloud :data="chartData" :settings="chartSettings1"></ve-wordcloud>
           <div class="well fz14" style="padding: 15px 2px;font-size: 13px;margin-bottom: 0;background-color:#f7f9fa !important">用户
@@ -85,7 +88,10 @@
           </div>
         </div>
         <p>敏感率（当前敏感率只检测暴恐、反动、民生、色情等词汇）</p>
-        <span v-if="chartData1 === null">正在疯狂计算中...</span>
+        <div v-if="chartData1 === null" v-loading="true" style="min-height: 200px;"></div>
+        <div v-else-if="!chartData1.rows || chartData1.rows.length === 0">
+          <el-empty description="暂无敏感率数据"></el-empty>
+        </div>
         <div v-else>
           <ve-bar :data="chartData1" height="3.4rem"></ve-bar>
           <div class="well fz14" style="padding: 15px 2px;font-size: 13px;margin-bottom: 0;background-color:#f7f9fa !important">用户
@@ -102,7 +108,10 @@
           </div>
         </div>
         <p>情感分析柱状图</p>
-        <span v-if="chartData2 === null">正在疯狂计算中...</span>
+        <div v-if="chartData2 === null" v-loading="true" style="min-height: 200px;"></div>
+        <div v-else-if="!chartData2.rows || chartData2.rows.length === 0">
+          <el-empty description="暂无情感分析数据"></el-empty>
+        </div>
         <div v-else>
           <ve-histogram :data="chartData2" :settings="chartSettings2"></ve-histogram>
           <div class="well fz14" style="padding: 15px 2px;font-size: 13px;margin-bottom: 0;background-color:#f7f9fa !important">用户

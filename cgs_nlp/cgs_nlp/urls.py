@@ -52,6 +52,7 @@ urlpatterns = [
     
     # 热度排名相关路由
     path('api/hot/', SpiderWeibo.hot_tweets, name='hot_tweets'),
+    path('api/model/compare/', SpiderWeibo.model_compare, name="model_compare"),
     
     path('', TemplateView.as_view(template_name="index.html")),
     path('favicon.ico', RedirectView.as_view(url='static/favicon.ico')),
