@@ -162,11 +162,16 @@ class ScrapydWeibo:
     @require_GET
     def getLasted(request):
         infos = list(UserInfo.objects.values('_id', 'Image', 'NickName').order_by('-_id'))
-        targets = list(Target.objects.values("uid"))
+        targets = list(Target.objects.values("uid", "group"))
+        c = Counter()
+        for word in targets:
+            c[word['group']] += 1
+        li = list(c.items())
+        li.sort(key=lambda x: x[0])
         result = {
             'user': infos,
             'target': targets,
-            'count': []
+            'count': li
         }
         return JsonResponse(result, safe=False)
 

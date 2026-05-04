@@ -214,6 +214,12 @@ class SpiderWeibo:
             weibo_id = request.GET.get("weiboId")
             
             if weibo_id:  # 只有在提供了 weibo_id 时才处理
+                # 首先检查 UserInfo 是否存在
+                try:
+                    UserInfo.objects.get(_id=weibo_id)
+                except UserInfo.DoesNotExist:
+                    return JsonResponse({'error': '该用户不存在于数据库中'}, status=404)
+                
                 articles = TweetsInfo.objects.filter(UserInfo_id=weibo_id)
                 content = ' '.join([
                     e.Content.replace('转发', '').replace('转发理由:', '').replace('转发内容:', '').replace('原始用户:', '').replace('转发微博已被删除', '')
@@ -258,6 +264,15 @@ class SpiderWeibo:
             start_date = request.POST.get("start_date", "")
             end_date = request.POST.get("end_date", "")
 
+            if not weibo_id:
+                return JsonResponse({'error': '缺少 weiboId 参数'}, status=400)
+            
+            # 检查 UserInfo 是否存在
+            try:
+                UserInfo.objects.get(_id=weibo_id)
+            except UserInfo.DoesNotExist:
+                return JsonResponse({'error': '该用户不存在于数据库中'}, status=404)
+
             try:
                 page = int(page)
             except (ValueError, TypeError):
@@ -289,6 +304,16 @@ class SpiderWeibo:
         if request.method == "GET":
             weibo_id = request.GET.get("weiboId")
             limit = request.GET.get("limit", "100")
+            
+            if not weibo_id:
+                return JsonResponse({'error': '缺少 weiboId 参数'}, status=400)
+            
+            # 检查 UserInfo 是否存在
+            try:
+                UserInfo.objects.get(_id=weibo_id)
+            except UserInfo.DoesNotExist:
+                return JsonResponse({'error': '该用户不存在于数据库中'}, status=404)
+            
             try:
                 limit = min(int(limit), 500)
             except (ValueError, TypeError):

@@ -5,6 +5,8 @@ from django.contrib.auth.models import User
 class Target(models.Model):
     uid = models.CharField('uid', max_length=255, default='', db_index=True, unique=True)
     cookie = models.CharField('cookie', max_length=2048, default='')
+    isScrapy = models.IntegerField('是否已爬取', default=0)
+    group = models.IntegerField('用户分组', default=0)
     add_time = models.DateTimeField('add_time', auto_now_add=True, db_index=True)
 
     class Meta:
@@ -155,6 +157,22 @@ class ImgInfo(models.Model):
 
     def __str__(self):
         return str(self.UserInfo)
+
+
+class RelationshipsInfo(models.Model):
+    _id = models.CharField('关系ID', max_length=100, primary_key=True)
+    fan_id = models.CharField('关注者ID', max_length=50, db_index=True)
+    followed_id = models.CharField('被关注者ID', max_length=50, db_index=True)
+    crawl_time = models.DateTimeField('抓取时间', auto_now_add=True)
+
+    class Meta:
+        managed = True
+        db_table = 'SpiderAPI_RelationshipsInfo'
+        verbose_name = '用户关系'
+        verbose_name_plural = '用户关系'
+
+    def __str__(self):
+        return f'{self.fan_id} -> {self.followed_id}'
 
 
 class UserProfile(models.Model):

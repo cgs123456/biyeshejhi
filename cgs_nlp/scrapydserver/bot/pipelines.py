@@ -17,7 +17,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'cgs_nlp.settings')
 django.setup()
 
 from datetime import datetime
-from SpiderAPI.models import UserInfo, TweetsInfo, CommentWeiboInfo, CommentInfo
+from SpiderAPI.models import UserInfo, TweetsInfo, CommentWeiboInfo, CommentInfo, RelationshipsInfo
 from SnowNLPAPI.snownlp import SnowNLP
 
 
@@ -128,6 +128,18 @@ def save_to_django(item, spider):
                     )
             except Exception as e:
                 spider.logger.warning(f"CommentItem save failed: {e}")
+
+        elif 'fan_id' in item_dict and 'followed_id' in item_dict:
+            try:
+                RelationshipsInfo.objects.get_or_create(
+                    _id=item_dict.get('_id', ''),
+                    defaults={
+                        'fan_id': item_dict.get('fan_id', ''),
+                        'followed_id': item_dict.get('followed_id', ''),
+                    }
+                )
+            except Exception as e:
+                spider.logger.warning(f"RelationshipsItem save failed: {e}")
 
     return item
 
