@@ -630,7 +630,7 @@ class SpiderWeibo:
                     'like': tweet.Like or 0,
                     'comment': tweet.Comment or 0,
                     'transfer': tweet.Transfer or 0,
-                    'sentiments': tweet.sentiments,
+                    'sentiments': float(tweet.sentiments) if tweet.sentiments else 0.0,
                     'pubTime': tweet.PubTime.strftime('%Y-%m-%d %H:%M:%S') if tweet.PubTime else '',
                     'totalInteraction': total
                 })

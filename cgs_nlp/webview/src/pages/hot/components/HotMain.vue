@@ -76,7 +76,7 @@ jackie_chen      1.0         热度排名主页面
                 <span class="repost"><i class="el-icon-refresh-right"></i> {{tweet.transfer}}</span>
                 <span class="total">互动: {{tweet.totalInteraction}}</span>
                 <span class="sentiment" :class="tweet.sentiments > 0.5 ? 'positive' : 'negative'">
-                  情感值: {{tweet.sentiments.toFixed(2)}}
+                  情感值: {{Number(tweet.sentiments || 0).toFixed(2)}}
                 </span>
               </div>
               <div class="tweet-time">发布时间: {{tweet.pubTime}}</div>

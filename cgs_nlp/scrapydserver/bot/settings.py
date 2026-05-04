@@ -3,6 +3,7 @@ import sys
 import os
 import base64
 
+os.environ['DJANGO_ALLOW_ASYNC_UNSAFE'] = 'true'
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', os.environ.get('DJANGO_SETTINGS_MODULE', 'cgs_nlp.settings'))
 
 _scrapydserver_dir = os.path.dirname(os.path.abspath(__file__))

@@ -21,6 +21,9 @@ class WeiboSpider(Spider):
         import os
         import django
         
+        # 允许 Django ORM 在 Scrapy 的 async 上下文中执行（Scrapy 2.13+ 必须）
+        os.environ['DJANGO_ALLOW_ASYNC_UNSAFE'] = 'true'
+        
         os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'cgs_nlp.settings')
         scrapydserver_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
         cgs_nlp_dir = os.path.dirname(scrapydserver_dir)

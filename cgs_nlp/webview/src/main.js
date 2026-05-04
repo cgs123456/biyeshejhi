@@ -1,5 +1,5 @@
 // ✅ 1. 强制引入Vue2完整构建版，彻底根治 Uncaught ReferenceError: Vue is not defined
-import Vue from 'vue/dist/vue.esm.js'
+import Vue from 'vue'
 // ✅ 2. 正确导入路由，彻底根治 Uncaught ReferenceError: router is not defined
 import router from './router'
 // ✅ 3. 保留你引入的所有插件+组件，一个都没删，完美适配你的毕设

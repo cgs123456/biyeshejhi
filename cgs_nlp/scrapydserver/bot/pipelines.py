@@ -4,6 +4,8 @@ import os
 import sys
 import django
 
+os.environ['DJANGO_ALLOW_ASYNC_UNSAFE'] = 'true'
+
 _pipeline_file = os.path.abspath(__file__)
 _bot_dir = os.path.dirname(_pipeline_file)
 _scrapydserver_dir = os.path.dirname(_bot_dir)
