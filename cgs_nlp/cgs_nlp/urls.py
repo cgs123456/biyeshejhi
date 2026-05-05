@@ -56,6 +56,35 @@ urlpatterns = [
     
     path('', TemplateView.as_view(template_name="index.html")),
     path('favicon.ico', RedirectView.as_view(url='static/favicon.ico')),
+    # SPA前端路由fallback - 所有未匹配的路由返回index.html
+    # 注意：前端使用hash模式，实际路由是 /#/user, /#/crawler 等
+    # 但用户可能直接访问 /user, /crawler 等，需要fallback到index.html
+    path('user/', TemplateView.as_view(template_name="index.html")),
+    path('user', TemplateView.as_view(template_name="index.html")),
+    path('crawler/', TemplateView.as_view(template_name="index.html")),
+    path('crawler', TemplateView.as_view(template_name="index.html")),
+    path('textanalysis/', TemplateView.as_view(template_name="index.html")),
+    path('textanalysis', TemplateView.as_view(template_name="index.html")),
+    path('compare/', TemplateView.as_view(template_name="index.html")),
+    path('compare', TemplateView.as_view(template_name="index.html")),
+    path('about/', TemplateView.as_view(template_name="index.html")),
+    path('about', TemplateView.as_view(template_name="index.html")),
+    path('login/', TemplateView.as_view(template_name="index.html")),
+    path('login', TemplateView.as_view(template_name="index.html")),
+    path('register/', TemplateView.as_view(template_name="index.html")),
+    path('register', TemplateView.as_view(template_name="index.html")),
+    path('comment/', TemplateView.as_view(template_name="index.html")),
+    path('comment', TemplateView.as_view(template_name="index.html")),
+    path('usercomment/', TemplateView.as_view(template_name="index.html")),
+    path('usercomment', TemplateView.as_view(template_name="index.html")),
+    path('mycrawler/', TemplateView.as_view(template_name="index.html")),
+    path('mycrawler', TemplateView.as_view(template_name="index.html")),
+    path('usergroup/', TemplateView.as_view(template_name="index.html")),
+    path('usergroup', TemplateView.as_view(template_name="index.html")),
+    path('hot/', TemplateView.as_view(template_name="index.html")),
+    path('hot', TemplateView.as_view(template_name="index.html")),
+    path('analysis/', TemplateView.as_view(template_name="index.html")),
+    path('analysis', TemplateView.as_view(template_name="index.html")),
 ]
 
 if settings.DEBUG:

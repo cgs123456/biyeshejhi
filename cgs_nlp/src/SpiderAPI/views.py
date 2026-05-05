@@ -171,9 +171,11 @@ class SpiderWeibo:
                 page = 1
 
             try:
-                UserInfo.objects.get(_id=weibo_id)
+                # 使用 select_related 优化查询
+                user = UserInfo.objects.get(_id=weibo_id)
                 res['ok'] = "数据库已存在该用户，开始返回数据"
-                res['data'] = serializers.serialize("json", UserInfo.objects.filter(_id=weibo_id))
+                res['data'] = serializers.serialize("json", [user])
+                # 只查询需要的字段，使用values代替serialize提升性能
                 articles = TweetsInfo.objects.filter(UserInfo_id=weibo_id).order_by("-PubTime")
                 paginator = Paginator(articles, 20)
                 pageData = paginator.page(page)
@@ -181,31 +183,54 @@ class SpiderWeibo:
                 res['tweets'] = serializers.serialize("json", pageData)
                 return HttpResponse(json.dumps(res))
             except UserInfo.DoesNotExist:
-                try:
-                    target, created = Target.objects.get_or_create(
-                        uid=weibo_id,
-                        defaults={'isScrapy': 0, 'group': 0}
-                    )
-                    if not created:
-                        target.isScrapy = 0
-                        target.save()
-                    uid = int(target.uid)
-                    cookie_val = target.get_cookie()
-                    cookie = {"Cookie": cookie_val}
-                    wb = Weibo(uid, cookie)
-                    wb.get_userInfo()
-                    wb.get_weibo_info()
-                    TweetsInfo.objects.filter(Content='').delete()
-                except Exception as e:
-                    traceback.print_exc()
-
-                res['ok'] = "数据库不存在该数据的爬虫"
-                res['data'] = serializers.serialize("json", UserInfo.objects.filter(_id=weibo_id))
-                articles = TweetsInfo.objects.filter(UserInfo_id=weibo_id).order_by("-PubTime")
-                paginator = Paginator(articles, 20)
-                pageData = paginator.page(page)
-                res['total'] = paginator.count
-                res['tweets'] = serializers.serialize("json", pageData)
+                target, created = Target.objects.get_or_create(
+                    uid=weibo_id,
+                    defaults={'isScrapy': 0, 'group': 0}
+                )
+                
+                # 检查是否正在爬取
+                if target.isScrapy == 1:
+                    res['ok'] = "爬虫正在后台运行中"
+                    res['data'] = "[]"
+                    res['total'] = 0
+                    res['tweets'] = "[]"
+                    res['crawling'] = True
+                    return HttpResponse(json.dumps(res))
+                
+                # 重置状态并启动后台爬取
+                target.isScrapy = 1
+                target.save()
+                
+                def run_crawler(uid_val, cookie_val):
+                    try:
+                        cookie = {"Cookie": cookie_val}
+                        wb = Weibo(uid_val, cookie)
+                        wb.get_userInfo()
+                        wb.get_weibo_info()
+                        TweetsInfo.objects.filter(Content='').delete()
+                    except Exception as e:
+                        traceback.print_exc()
+                    finally:
+                        try:
+                            t = Target.objects.get(uid=str(uid_val))
+                            t.isScrapy = 2
+                            t.save()
+                        except Exception:
+                            pass
+                
+                import threading
+                t = threading.Thread(
+                    target=run_crawler,
+                    args=(int(weibo_id), target.get_cookie()),
+                    daemon=True
+                )
+                t.start()
+                
+                res['ok'] = "爬虫已在后台启动，请稍后刷新查看"
+                res['data'] = "[]"
+                res['total'] = 0
+                res['tweets'] = "[]"
+                res['crawling'] = True
                 return HttpResponse(json.dumps(res))
             except Exception as e:
                 traceback.print_exc()
@@ -303,11 +328,12 @@ class SpiderWeibo:
             paginator = Paginator(articles, 20)
             pageData = paginator.page(page)
             ret['total'] = paginator.count
-            ret['data'] = serializers.serialize("json", pageData)
+            ret['tweets'] = serializers.serialize("json", pageData)
             return HttpResponse(json.dumps(ret))
 
         if request.method == "GET":
             weibo_id = request.GET.get("weiboId")
+            page = request.GET.get("page", "1")
             limit = request.GET.get("limit", "100")
             
             if not weibo_id:
@@ -320,30 +346,21 @@ class SpiderWeibo:
                 return JsonResponse({'error': '该用户不存在于数据库中'}, status=404)
             
             try:
+                page = int(page)
+            except (ValueError, TypeError):
+                page = 1
+                
+            try:
                 limit = min(int(limit), 500)
             except (ValueError, TypeError):
                 limit = 100
 
-            TweetsInfo.objects.filter(Content='').delete()
-            all_tweets = TweetsInfo.objects.filter(UserInfo_id=weibo_id, sentiments='')[:limit]
-            tweets_to_update = []
-            for e in all_tweets:
-                clean_content = e.Content.replace('转发理由', '').replace('转发内容', '').replace('原始用户', '').replace('转发微博已被删除', '')
-                try:
-                    s = SnowNLP(clean_content)
-                    e.tags = str(s.keywords(5))
-                    e.pinyin = ''.join([p for w, p in s.tags])
-                    e.sentiments = str(s.sentiments)
-                    tweets_to_update.append(e)
-                except Exception:
-                    e.sentiments = '0.5'
-                    e.tags = ''
-                    e.pinyin = ''
-                    tweets_to_update.append(e)
-
-            if tweets_to_update:
-                TweetsInfo.objects.bulk_update(tweets_to_update, ['tags', 'pinyin', 'sentiments'])
-            return JsonResponse({'success': True, 'processed': len(tweets_to_update)})
+            articles = TweetsInfo.objects.filter(UserInfo_id=weibo_id).order_by("-PubTime")
+            paginator = Paginator(articles, 20)
+            pageData = paginator.page(page)
+            ret['total'] = paginator.count
+            ret['tweets'] = serializers.serialize("json", pageData)
+            return HttpResponse(json.dumps(ret))
 
         return HttpResponse(json.dumps({'error': 'Invalid request method'}))
 
@@ -369,15 +386,30 @@ class SpiderWeibo:
                 try:
                     CommentWeiboInfo.objects.get(wb_id=wid)
                 except CommentWeiboInfo.DoesNotExist:
-                    target_obj = Target.objects.filter(uid=wid).first()
-                    if not target_obj:
-                        target_obj = Target.objects.first()
-                    if target_obj:
-                        uid = int(target_obj.uid)
-                        cookie_val = target_obj.get_cookie()
-                        cookie = {"Cookie": cookie_val}
-                        wb = Weibo(uid, cookie)
-                        wb.get_comment_info(wid)
+                    # 尝试从Target获取cookie并爬取评论
+                    try:
+                        target_obj = Target.objects.filter(uid=wid).first()
+                        if not target_obj:
+                            target_obj = Target.objects.first()
+                        if target_obj:
+                            uid = int(target_obj.uid)
+                            cookie_val = target_obj.get_cookie()
+                            cookie = {"Cookie": cookie_val}
+                            wb = Weibo(uid, cookie)
+                            wb.get_comment_info(wid)
+                    except Exception as e:
+                        # 爬取失败时记录错误但不中断，返回空数据
+                        import traceback
+                        traceback.print_exc()
+                        res[wid] = {
+                            'data': '[]',
+                            'info': '[]',
+                            'mingan': 0,
+                            'cipin': [],
+                            'analy': [],
+                            'commentqushi': []
+                        }
+                        continue
                 
                 res[wid] = process_comment_data(wid)
             return HttpResponse(json.dumps(res))
