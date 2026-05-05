@@ -250,8 +250,7 @@ class SpiderWeibo:
                     img_info.wordcloud = res
                     img_info.save()
             else:
-                # 没有提供 weibo_id，返回空结果或错误
-                res['error'] = 'Missing weiboId parameter'
+                return JsonResponse({'error': 'Missing weiboId parameter'}, status=400)
 
         return HttpResponse(json.dumps(res))
 
@@ -407,6 +406,9 @@ class SpiderWeibo:
             if not username or not password:
                 return JsonResponse({'success': False, 'message': '用户名和密码不能为空'})
 
+            if len(password) < 6:
+                return JsonResponse({'success': False, 'message': '密码长度不能少于6位'})
+
             if User.objects.filter(username=username).exists():
                 return JsonResponse({'success': False, 'message': '用户名已存在'})
 
@@ -528,6 +530,7 @@ class SpiderWeibo:
             return JsonResponse({'success': False, 'message': str(e)})
 
     @require_GET
+    @login_required
     def export_tweets_csv(request):
         """导出微博数据为 CSV 文件"""
         try:
@@ -562,6 +565,7 @@ class SpiderWeibo:
             return JsonResponse({'success': False, 'message': f'导出失败: {str(e)}'})
 
     @require_GET
+    @login_required
     def export_user_info(request):
         """导出用户信息为 CSV 文件"""
         try:

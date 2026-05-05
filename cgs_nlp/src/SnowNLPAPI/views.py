@@ -3,6 +3,7 @@ from django.http import HttpResponse, JsonResponse
 from django.views.decorators.http import require_GET
 from .snownlp import SnowNLP
 from .snownlp import sentiment
+from django.utils.html import escape
 import re
 
 
@@ -75,10 +76,10 @@ class SnowNLPWeibo:
 
         mm = {
             'sentiments': s.sentiments,
-            'keywords': keywords,
+            'keywords': [escape(k) for k in keywords] if isinstance(keywords, list) else keywords,
             'tf': result,
-            'words': words,
-            'sentences': sentences,
+            'words': [escape(w) for w in words] if isinstance(words, list) else words,
+            'sentences': [escape(s) for s in sentences] if isinstance(sentences, list) else sentences,
             'tf2': tf2,
             'idf': idf,
         }

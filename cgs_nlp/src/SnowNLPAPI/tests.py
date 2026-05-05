@@ -1,26 +1,26 @@
-from collections import Counter
-
 from django.test import TestCase
+from django.urls import reverse
+import json
 
-# Create your tests here.
-# from snownlp import SnowNLP
-# from snownlp import sentiment
-# # Create your views here.
-# text = '希望本无所谓有，也无所谓无，这就像地上的路，其实地上本没有路，走的人多了，也便成了路。'
-# s = SnowNLP(text)
-# # print(s.words)
-# # print(s.sentences)
-# # print(s.tf)
-# # print(s.idf)
-# # print(s.tags)
-# print(s.keywords(5))
-# mm = ()
-# for i in s.tags:
-#     mm += i
-# print(mm)
-list = [1, 2, 3, 2, 4, 3, 4, 1, 5]
-c = Counter()
-for word in list:
-    c[word] += 1
-print(c.items())
 
+class SnowNLPAPITests(TestCase):
+    def test_snownlp_endpoint(self):
+        url = reverse('snownlpapi')
+        response = self.client.get(url, {'snownlp': '今天天气真好'})
+        self.assertEqual(response.status_code, 200)
+
+    def test_snownlp_returns_sentiments(self):
+        url = reverse('snownlpapi')
+        response = self.client.get(url, {'snownlp': '这个产品非常好用'})
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content)
+        self.assertIn('sentiments', data)
+        self.assertIsInstance(data['sentiments'], float)
+
+    def test_snownlp_xss_protection(self):
+        url = reverse('snownlpapi')
+        response = self.client.get(url, {'snownlp': '<script>alert(1)</script>'})
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content)
+        content = json.dumps(data)
+        self.assertNotIn('<script>', content)
