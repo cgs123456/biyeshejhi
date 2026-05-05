@@ -79,7 +79,6 @@ export default {
       this.weiboId = this.$refs.wbId.value
       console.log(this.weiboId)
       if (this.weiboId.length === 10) {
-        // 触发搜索事件，保存历史
         this.$emit('search', {
           keyword: this.weiboId,
           weibo_id: this.weiboId,
@@ -87,12 +86,12 @@ export default {
         })
 
         this.openFullScreen2()
-        console.log('zq')
-        console.log('123')
         axios.post(api.spider,
           Qs.stringify({
             weiboId: this.weiboId
-          }))
+          }), {
+            timeout: 120000
+          })
           .then((response) => {
             this.$store.state.user = response.data.data
             this.$store.state.usertweets = response.data.tweets
@@ -108,7 +107,19 @@ export default {
           })
           .catch((error) => {
             this.loading.close()
-            this.$message.error('请求失败，请检查后台是否正常运行！！')
+            if (error.response) {
+              if (error.response.status === 500) {
+                this.$message.error('服务器内部错误，请检查后台日志')
+              } else if (error.response.status === 403) {
+                this.$message.error('请求被拒绝(CSRF)，请刷新页面后重试')
+              } else {
+                this.$message.error('请求失败(' + error.response.status + ')，请检查后台是否正常运行')
+              }
+            } else if (error.code === 'ECONNABORTED') {
+              this.$message.error('请求超时，爬虫可能仍在后台运行，请稍后查看')
+            } else {
+              this.$message.error('网络错误，请检查后台是否正常运行')
+            }
             console.error(error)
           })
       } else {

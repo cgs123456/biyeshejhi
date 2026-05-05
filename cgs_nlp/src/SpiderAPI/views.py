@@ -182,19 +182,22 @@ class SpiderWeibo:
                 return HttpResponse(json.dumps(res))
             except UserInfo.DoesNotExist:
                 try:
-                    Target.objects.filter(id=1).update(uid=weibo_id)
-                except Exception:
-                    Target.objects.create(uid=weibo_id)
-                resp = Target.objects.filter(uid=weibo_id).first()
-                if resp:
-                    uid = int(resp.uid)
-                    # 使用 get_cookie() 解密
-                    cookie_val = resp.get_cookie()
+                    target, created = Target.objects.get_or_create(
+                        uid=weibo_id,
+                        defaults={'isScrapy': 0, 'group': 0}
+                    )
+                    if not created:
+                        target.isScrapy = 0
+                        target.save()
+                    uid = int(target.uid)
+                    cookie_val = target.get_cookie()
                     cookie = {"Cookie": cookie_val}
                     wb = Weibo(uid, cookie)
                     wb.get_userInfo()
                     wb.get_weibo_info()
                     TweetsInfo.objects.filter(Content='').delete()
+                except Exception as e:
+                    traceback.print_exc()
 
                 res['ok'] = "数据库不存在该数据的爬虫"
                 res['data'] = serializers.serialize("json", UserInfo.objects.filter(_id=weibo_id))
@@ -204,6 +207,9 @@ class SpiderWeibo:
                 res['total'] = paginator.count
                 res['tweets'] = serializers.serialize("json", pageData)
                 return HttpResponse(json.dumps(res))
+            except Exception as e:
+                traceback.print_exc()
+                return JsonResponse({'error': '服务器内部错误，请稍后重试'}, status=500)
 
         return HttpResponse(json.dumps({'error': 'Invalid request method'}))
 
