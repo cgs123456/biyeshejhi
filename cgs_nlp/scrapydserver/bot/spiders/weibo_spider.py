@@ -43,7 +43,17 @@ class WeiboSpider(Spider):
         
         print('uid:::', start_uids)
         for uid in start_uids:
-            yield Request(url="https://weibo.cn/%s/info" % uid, callback=self.parse_information)
+            # 从 Target 表取 Cookie 并解密
+            try:
+                t = Target.objects.get(uid=uid)
+                cookie = SimpleEncryption().decrypt(t.get_cookie())
+            except Exception:
+                cookie = ''
+            yield Request(
+                url="https://weibo.cn/%s/info" % uid,
+                callback=self.parse_information,
+                headers={'Cookie': cookie} if cookie else {}
+            )
 
     def parse_information(self, response):
         """ 抓取个人信息 """
