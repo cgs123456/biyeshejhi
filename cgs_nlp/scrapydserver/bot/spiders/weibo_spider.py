@@ -43,16 +43,24 @@ class WeiboSpider(Spider):
         
         print('uid:::', start_uids)
         for uid in start_uids:
-            # 从 Target 表取 Cookie 并解密
+            cookie_dict = {}
             try:
                 t = Target.objects.get(uid=uid)
-                cookie = SimpleEncryption().decrypt(t.get_cookie())
-            except Exception:
-                cookie = ''
+                cookie_str = SimpleEncryption().decrypt(t.get_cookie())
+                print(f'[DEBUG] UID={uid}, cookie={cookie_str[:60]}...')
+                if cookie_str:
+                    for item in cookie_str.split(';'):
+                        item = item.strip()
+                        if '=' in item:
+                            k, v = item.split('=', 1)
+                            cookie_dict[k.strip()] = v.strip()
+            except Exception as e:
+                print(f'[DEBUG] UID={uid}, cookie error: {e}')
             yield Request(
                 url="https://weibo.cn/%s/info" % uid,
                 callback=self.parse_information,
-                headers={'Cookie': cookie} if cookie else {}
+                cookies=cookie_dict if cookie_dict else None,
+                headers={'Cookie': cookie_str} if cookie_dict else {}
             )
 
     def parse_information(self, response):

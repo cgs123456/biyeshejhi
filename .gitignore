@@ -6,6 +6,7 @@ __pycache__/
 .Python
 env/
 venv/
+.venv/
 ENV/
 build/
 develop-eggs/
@@ -64,3 +65,6 @@ Thumbs.db
 
 # Compiled files
 webview/src/assets/images/
+
+# Proto dir
+_proto_weibonlp/
