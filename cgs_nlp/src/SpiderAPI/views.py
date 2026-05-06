@@ -153,6 +153,8 @@ class SpiderWeibo:
         weibo_id = weibo_id.strip()
         if len(weibo_id) < SpiderWeibo.WEIBO_ID_MIN_LEN or len(weibo_id) > SpiderWeibo.WEIBO_ID_MAX_LEN:
             return False
+        if not weibo_id.isdigit():
+            return False
         return True
 
     @csrf_exempt

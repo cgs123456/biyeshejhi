@@ -20,11 +20,12 @@ class LoginRequiredJSONMiddleware:
 
     def __call__(self, request):
         response = self.get_response(request)
-        # 如果是 API 请求且收到 302 重定向到登录页，转换为 403
-        if response.status_code == 302 and '/admin/login/' in response.get('Location', ''):
-            if request.path.startswith('/api/'):
-                return JsonResponse({
-                    'success': False,
-                    'message': '请先登录'
-                }, status=403)
+        if response.status_code == 302:
+            location = response.get('Location', '')
+            if '/login/' in location:
+                if request.path.startswith('/api/') or request.path.startswith('/cancelscrapyd'):
+                    return JsonResponse({
+                        'success': False,
+                        'message': '请先登录'
+                    }, status=403)
         return response
