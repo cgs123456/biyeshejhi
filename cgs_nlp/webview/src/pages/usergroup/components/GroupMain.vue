@@ -234,7 +234,7 @@ export default {
       this.tableData = res
     },
     goInWb: function (id) {
-      this.openFullScreen2()
+      this.openFullScreen2('正在加载用户数据...')
       axios.post(api.spider,
         Qs.stringify({
           weiboId: id
@@ -247,12 +247,16 @@ export default {
         this.$router.push({
           path: '/user'
         })
+      }.bind(this)).catch(function (error) {
+        this.loading.close()
+        this.$message.error('加载用户数据失败，请检查网络连接或稍后重试')
+        console.error('goInWb error:', error)
       }.bind(this))
     },
-    openFullScreen2: function () {
+    openFullScreen2: function (text) {
       this.loading = this.$loading({
         lock: true,
-        text: '后台疯狂进行爬虫计算中',
+        text: text || '后台疯狂进行爬虫计算中',
         spinner: 'el-icon-loading',
         background: 'rgba(0, 0, 0, 0.7)'
       })

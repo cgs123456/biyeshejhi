@@ -137,7 +137,7 @@ export default {
     },
     /* 单条微博详细信息 */
     goInComment: function (wbId) {
-      this.openFullScreen2()
+      this.openFullScreen2('正在加载评论数据...')
       axios.post(api.comment,
         Qs.stringify({
           commentId: wbId
@@ -156,6 +156,10 @@ export default {
         this.$router.push({
           path: '/usercomment'
         })
+      }).catch((error) => {
+        this.loading.close()
+        this.$message.error('加载评论数据失败，请检查网络连接或稍后重试')
+        console.error('goInComment error:', error)
       })
     },
     goInGroup: function (ids) {
@@ -167,7 +171,7 @@ export default {
           group += ids[i]._id + ','
         }
       }
-      this.openFullScreen2()
+      this.openFullScreen2('正在加载分组数据...')
       axios.post(api.group,
         Qs.stringify({
           weiboIds: group
@@ -180,12 +184,16 @@ export default {
         this.$router.push({
           path: '/usergroup'
         })
+      }).catch((error) => {
+        this.loading.close()
+        this.$message.error('加载分组数据失败，请检查网络连接或稍后重试')
+        console.error('goInGroup error:', error)
       })
       console.log(group)
     },
     /* 个人用户详细信息 */
     goInWb: function (id) {
-      this.openFullScreen2()
+      this.openFullScreen2('正在加载用户数据...')
       axios.post(api.spider,
         Qs.stringify({
           weiboId: id
@@ -198,12 +206,16 @@ export default {
         this.$router.push({
           path: '/user'
         })
+      }).catch((error) => {
+        this.loading.close()
+        this.$message.error('加载用户数据失败，请检查网络连接或稍后重试')
+        console.error('goInWb error:', error)
       })
     },
-    openFullScreen2 () {
+    openFullScreen2 (text) {
       this.loading = this.$loading({
         lock: true,
-        text: '后台疯狂进行爬虫计算中',
+        text: text || '后台疯狂进行爬虫计算中',
         spinner: 'el-icon-loading',
         background: 'rgba(0, 0, 0, 0.7)'
       })

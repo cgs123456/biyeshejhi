@@ -121,7 +121,7 @@ export default {
     openFullScreen2 () {
       this.loading = this.$loading({
         lock: true,
-        text: '后台疯狂进行爬虫计算中',
+        text: '正在加载评论数据...',
         spinner: 'el-icon-loading',
         background: 'rgba(0, 0, 0, 0.7)'
       })
